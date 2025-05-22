@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.snapshot.mapper.SnapshotMapper"> 
+	
+	<!-- 스냅샷 mst & 스냅샷 정보 리스트 맥스 페이지 -->
+	<select id="selectSnapshotListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+	    FROM
+	        snapshot_mst A
+	    LEFT JOIN snapshot B
+	        ON A.SEQ = B.MST_SEQ
+		WHERE 1=1
+		AND A.DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.COLLECTION_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.COLLECTION_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(B.OWNER_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	
+	<!-- 스냅샷 mst & 스냅샷 정보 리스트 조회 -->
+	<select id="selectSnapshotList" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="io.starinc.api.v1.snapshot.vo.SnapshotVo">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+				, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+			FROM (
+				SELECT
+					A.SEQ AS MST_SEQ
+					, A.COLLECTION_NAME
+					, A.COLLECTION_ADDRESS
+					, B.SEQ
+					, B.NFT_ID
+					, B.NFT_NAME
+					, B.OWNER_ADDRESS
+					, B.JSON_URI
+					, B.RARITY
+					, A.REG_ID AS REG_ID
+					, A.REG_TIME AS REG_TIME
+					, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+				FROM
+					snapshot_mst A
+				LEFT JOIN SNAPSHOT B
+					ON A.SEQ = B.MST_SEQ
+				WHERE 1=1
+				AND A.DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+				AND (
+					UPPER(A.COLLECTION_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.COLLECTION_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(B.OWNER_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+				)
+		</if>
+				ORDER BY A.SEQ DESC
+				LIMIT 100000
+			) A
+			, (SELECT @ROWNUM := 0) N
+		) B
+		<![CDATA[
+		WHERE ROWNUM > #{startRow}
+		AND ROWNUM <= #{endRow}
+		]]>
+		ORDER BY B.SEQ DESC
+	</select>
+	
+	<!-- 스냅샷 mst 리스트 조회 -->
+	<select id="selectSnapshotMstList" resultType="io.starinc.api.v1.snapshot.vo.SnapshotVo">
+		SELECT
+			SEQ
+			, COLLECTION_NAME
+			, COLLECTION_ADDRESS
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			snapshot_mst A
+	</select>
+	
+	<!-- 스냅샷 mst 등록 -->
+	<insert id="insertSnapshotMst" parameterType="io.starinc.api.v1.snapshot.vo.SnapshotVo">
+		INSERT INTO snapshot_mst (
+			COLLECTION_NAME
+			, COLLECTION_ADDRESS
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{collection_name}
+			, #{collection_address}
+			, #{reg_id}
+			, SYSDATE()
+		)
+		<selectKey resultType="int" keyProperty="mst_seq" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	
+	
+	
+	
+	<!-- 스냅샷 리스트 등록 -->
+	<insert id="insertSnapshotList" parameterType="java.util.List">
+		INSERT INTO snapshot (
+			MST_SEQ
+			, RESULT_NUMBER
+			, OWNER_ADDRESS
+			, NFT_ID
+			, NFT_NAME
+			, JSON_URI
+			, RARITY
+			, REG_ID
+			, REG_TIME
+		) VALUES
+		<foreach collection="list" item="item" separator=",">
+		(
+			#{item.mst_seq}
+			, #{item.result_number}
+			, #{item.owner_address}
+			, #{item.nft_id}
+			, #{item.nft_name}
+			, #{item.json_uri}
+			, #{item.rarity}
+			, #{item.reg_id}
+			, SYSDATE()
+		)
+		</foreach>
+	</insert>
+</mapper>

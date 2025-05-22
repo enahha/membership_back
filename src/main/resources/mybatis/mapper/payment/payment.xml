@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.payment.mapper.PaymentMapper"> 
+	<!--
+	 결제정보 리스트 마지막 페이지 번호 조회 
+	<select id="selectPaymentListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			payment A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.OLD_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	-->
+	
+	<!-- 결제정보 리스트 조회 -->
+	<select id="selectPaymentList" parameterType="io.starinc.api.v1.payment.vo.PaymentVo" resultType="io.starinc.api.v1.payment.vo.PaymentVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, STATUS
+			, WALLET_ADDRESS_FROM
+			, WALLET_TYPE_FROM
+			, WALLET_ADDRESS_TO
+			, WALLET_TYPE_TO
+			, CURRENCY_SYMBOL
+			, CURRENCY_AMOUNT_TOTAL
+			, QUANTITY_A
+			, QUANTITY_S
+			, QUANTITY_R
+			, QUANTITY_V
+			, QUANTITY_ME100
+			, QUANTITY_ME1500
+			, QUANTITY_ME10000
+			, PRICE_A
+			, PRICE_S
+			, PRICE_R
+			, PRICE_V
+			, PRICE_ME100
+			, PRICE_ME1500
+			, PRICE_ME10000
+			, SUBTOTAL_A
+			, SUBTOTAL_S
+			, SUBTOTAL_R
+			, SUBTOTAL_V
+			, SUBTOTAL_ME100
+			, SUBTOTAL_ME1500
+			, SUBTOTAL_ME10000
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			payment A
+		WHERE 1=1
+		AND A.DEL_ID IS NULL
+		AND A.PROJECT_SEQ IN = (1, 4, 5, 6)
+		<![CDATA[
+		AND A.STATUS > 0
+		]]>
+		ORDER BY A.SEQ
+	</select>
+	
+	<!-- 결제정보 리스트 조회 (mint_plan insert용) -->
+	<select id="selectPaymentListNotInMintPlan" parameterType="io.starinc.api.v1.payment.vo.PaymentVo" resultType="io.starinc.api.v1.payment.vo.PaymentVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, STATUS
+			, WALLET_ADDRESS_FROM
+			, WALLET_TYPE_FROM
+			, WALLET_ADDRESS_TO
+			, WALLET_TYPE_TO
+			, CURRENCY_SYMBOL
+			, CURRENCY_AMOUNT_TOTAL
+			, QUANTITY_A
+			, QUANTITY_S
+			, QUANTITY_R
+			, QUANTITY_V
+			, QUANTITY_ME100
+			, QUANTITY_ME1500
+			, QUANTITY_ME10000
+			, PRICE_A
+			, PRICE_S
+			, PRICE_R
+			, PRICE_V
+			, PRICE_ME100
+			, PRICE_ME1500
+			, PRICE_ME10000
+			, SUBTOTAL_A
+			, SUBTOTAL_S
+			, SUBTOTAL_R
+			, SUBTOTAL_V
+			, SUBTOTAL_ME100
+			, SUBTOTAL_ME1500
+			, SUBTOTAL_ME10000
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			payment A
+		WHERE 1=1
+		AND A.DEL_ID IS NULL
+		AND A.PROJECT_SEQ IN (1, 4, 5, 6)
+		<![CDATA[
+		AND A.STATUS > 0
+		]]>
+		AND A.SEQ NOT IN (SELECT payment_seq FROM mint_plan)
+		ORDER BY A.SEQ
+	</select>
+	
+	<!-- 지갑주소별 결제정보 리스트 조회 -->
+	<select id="selectPaymentListByWalletAddress" parameterType="io.starinc.api.v1.payment.vo.PaymentVo" resultType="io.starinc.api.v1.payment.vo.PaymentVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, STATUS
+			, WALLET_ADDRESS_FROM
+			, WALLET_TYPE_FROM
+			, WALLET_ADDRESS_TO
+			, WALLET_TYPE_TO
+			, CURRENCY_SYMBOL
+			, CURRENCY_AMOUNT_TOTAL
+			, QUANTITY_A
+			, QUANTITY_S
+			, QUANTITY_R
+			, QUANTITY_V
+			, QUANTITY_ME100
+			, QUANTITY_ME1500
+			, QUANTITY_ME10000
+			, PRICE_A
+			, PRICE_S
+			, PRICE_R
+			, PRICE_V
+			, PRICE_ME100
+			, PRICE_ME1500
+			, PRICE_ME10000
+			, SUBTOTAL_A
+			, SUBTOTAL_S
+			, SUBTOTAL_R
+			, SUBTOTAL_V
+			, SUBTOTAL_ME100
+			, SUBTOTAL_ME1500
+			, SUBTOTAL_ME10000
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			payment A
+		WHERE 1=1
+		AND A.DEL_ID IS NULL
+		AND A.PROJECT_SEQ IN (1, 4, 5, 6)
+		AND A.WALLET_ADDRESS_FROM = #{wallet_address_from}
+		ORDER BY A.SEQ DESC
+	</select>
+	
+	<!-- 결제정보 등록 -->
+	<insert id="insertPayment" parameterType="io.starinc.api.v1.payment.vo.PaymentVo">
+		INSERT INTO payment (
+			PROJECT_SEQ
+			, STATUS
+			, WALLET_ADDRESS_FROM
+			, WALLET_TYPE_FROM
+			, WALLET_ADDRESS_TO
+			, WALLET_TYPE_TO
+			, CURRENCY_SYMBOL
+			, CURRENCY_AMOUNT_TOTAL
+			, QUANTITY_A
+			, QUANTITY_S
+			, QUANTITY_R
+			, QUANTITY_V
+			, QUANTITY_ME100
+			, QUANTITY_ME1500
+			, QUANTITY_ME10000
+			, PRICE_A
+			, PRICE_S
+			, PRICE_R
+			, PRICE_V
+			, PRICE_ME100
+			, PRICE_ME1500
+			, PRICE_ME10000
+			, SUBTOTAL_A
+			, SUBTOTAL_S
+			, SUBTOTAL_R
+			, SUBTOTAL_V
+			, SUBTOTAL_ME100
+			, SUBTOTAL_ME1500
+			, SUBTOTAL_ME10000
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		) VALUES (
+			#{project_seq}
+			, #{status}
+			, #{wallet_address_from}
+			, #{wallet_type_from}
+			, #{wallet_address_to}
+			, #{wallet_type_to}
+			, #{currency_symbol}
+			, #{currency_amount_total}
+			, #{quantity_a}
+			, #{quantity_s}
+			, #{quantity_r}
+			, #{quantity_v}
+			, #{quantity_me100}
+			, #{quantity_me1500}
+			, #{quantity_me10000}
+			, #{price_a}
+			, #{price_s}
+			, #{price_r}
+			, #{price_v}
+			, #{price_me100}
+			, #{price_me1500}
+			, #{price_me10000}
+			, #{subtotal_a}
+			, #{subtotal_s}
+			, #{subtotal_r}
+			, #{subtotal_v}
+			, #{subtotal_me100}
+			, #{subtotal_me1500}
+			, #{subtotal_me10000}
+			, #{tx_id}
+			, #{reg_id}
+			, SYSDATE()
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+		)
+		<selectKey resultType="int" keyProperty="seq" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 결제정보 조회 -->
+	<!--
+	<select id="selectPaymentBySeq" parameterType="io.starinc.api.v1.payment.vo.PaymentVo" resultType="io.starinc.api.v1.payment.vo.PaymentVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, NFT_TYPE
+			, CURRENCY_SYMBOL
+			, NFT_ID
+			, MINT_ACCOUNT_KEY
+			, TOKEN_ACCOUNT_KEY
+			, METADATA_ACCOUNT_KEY
+			, MASTER_EDITION_ACCOUNT_KEY
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			payment A
+		WHERE A.SEQ = #{seq}
+	</select>
+	-->
+	
+	<!-- 결제정보 수정 -->
+	<!--
+	<update id="updatePayment" parameterType="io.starinc.api.v1.payment.vo.PaymentVo">
+		UPDATE payment SET
+			NFT_ID = #{nft_id}
+			, MINT_ACCOUNT_KEY = #{mint_account_key}
+			, TOKEN_ACCOUNT_KEY = #{token_account_key}
+			, METADATA_ACCOUNT_KEY = #{metadata_account_key}
+			, MASTER_EDITION_ACCOUNT_KEY = #{master_edition_account_key}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	-->
+	
+	<!-- 결제정보 수정 -->
+	<update id="updatePaymentStatus" parameterType="io.starinc.api.v1.payment.vo.PaymentVo">
+		UPDATE payment SET
+			STATUS = #{status}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 결제정보 삭제 -->
+	<!--
+	<delete id="deletePayment" parameterType="io.starinc.api.v1.payment.vo.PaymentVo">
+		UPDATE payment SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+	-->
+	
+	<select id="selectPaymentMeQuantitySold" resultType="map">
+		SELECT
+			COALESCE(SUM(quantity_a), 0) AS total_quantity_a,
+			COALESCE(SUM(quantity_s), 0) AS total_quantity_s,
+			COALESCE(SUM(quantity_r), 0) AS total_quantity_r,
+			COALESCE(SUM(quantity_v), 0) AS total_quantity_v,
+			COALESCE(SUM(quantity_me100), 0) AS total_quantity_me100,
+			COALESCE(SUM(quantity_me1500), 0) AS total_quantity_me1500,
+			COALESCE(SUM(quantity_me10000), 0) AS total_quantity_me10000
+		FROM 
+			payment A
+    </select>
+	
+</mapper>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.admin.mapper.AdminUserMapper"> 
+	
+	<!-- 유저 조회 -->
+	<select id="selectAdminUser" parameterType="io.starinc.api.v1.user.vo.UserVo" resultType="io.starinc.api.v1.user.vo.UserVo">
+		SELECT
+			UID
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, PWD
+			, AUTH_KEY
+			, NAME
+			, NICKNAME
+			, UCODE
+			, BIRTH
+			, GENDER
+			, NATION
+			, MOBILE_NO
+			, TEL_NO
+			, PROFILE_IMAGE
+			, THUMBNAIL_IMAGE
+			, INTRODUCE
+			, ID_CARD_IMAGE
+			, HOME_ADDRESS
+			, HOME_ADDRESS_IMAGE
+			, BUSINESS_REGISTRATION_NO
+			, BUSINESS_LICENSE_IMAGE
+			, COMPANY_ADDRESS
+			, COMPANY_ADDRESS_IMAGE
+			, COMPANY_TEL_NO
+			, PUSH_AGREE_YN
+			, ADCD
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			user A
+		WHERE A.UID = #{uid}
+	</select>
+	
+	<!-- 사용자 리스트 맥스 페이지 -->
+	<select id="selectAdminUserListLastPageNum" parameterType="io.starinc.api.v1.user.vo.UserVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			user A
+		WHERE 1=1
+		AND A.DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.UID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NICKNAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.MOBILE_NO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	
+	<!-- 사용자 리스트 조회 -->
+	<select id="selectAdminUserList" parameterType="io.starinc.api.v1.user.vo.UserVo" resultType="io.starinc.api.v1.user.vo.UserVo">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+				, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+			FROM (
+				SELECT
+					UID
+					, WALLET_ADDRESS
+					, WALLET_TYPE
+					, PWD
+					, AUTH_KEY
+					, SOLANA_WALLET_ADDRESS
+					, MEMETOON_ID
+					, MEMETOON_PWD
+					, NAME
+					, NICKNAME
+					, UCODE
+					, BIRTH
+					, GENDER
+					, NATION
+					, MOBILE_NO
+					, TEL_NO
+					, PROFILE_IMAGE
+					, THUMBNAIL_IMAGE
+					, INTRODUCE
+					, ID_CARD_IMAGE
+					, HOME_ADDRESS
+					, HOME_ADDRESS_IMAGE
+					, BUSINESS_REGISTRATION_NO
+					, BUSINESS_LICENSE_IMAGE
+					, COMPANY_ADDRESS
+					, COMPANY_ADDRESS_IMAGE
+					, COMPANY_TEL_NO
+					, PUSH_AGREE_YN
+					, ADCD
+					, REG_ID
+					, REG_TIME
+					, MOD_ID
+					, MOD_TIME
+					, DEL_ID
+					, DEL_TIME
+				FROM
+					user A
+				WHERE 1=1
+				AND A.DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+				AND (
+					UPPER(A.UID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NICKNAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.MOBILE_NO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+				)
+		</if>
+				ORDER BY A.REG_TIME DESC
+				LIMIT 10000
+			) B
+			, (SELECT @ROWNUM := 0) N
+		) C
+		<![CDATA[
+		WHERE ROWNUM > #{startRow}
+		AND ROWNUM <= #{endRow}
+		]]>
+	</select>
+</mapper>

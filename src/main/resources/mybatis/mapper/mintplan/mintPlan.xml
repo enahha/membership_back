@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.mintplan.mapper.MintPlanMapper"> 
+	<!--
+	 민트플랜 리스트 마지막 페이지 번호 조회 
+	<select id="selectMintPlanListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			mint_plan A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.OLD_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	-->
+	
+	<!-- 민트플랜 리스트 조회 -->
+	<select id="selectMintPlanList" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo" resultType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, PAYMENT_SEQ
+			, STATUS
+			, WALLET_ADDRESS_TO
+			, WALLET_TYPE_TO
+			, CURRENCY_SYMBOL
+			, NFT_TYPE
+			, NFT_ID
+			, JSON_FILE_URL
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			mint_plan A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		ORDER BY A.SEQ
+	</select>
+	
+	<!-- 민트플랜 필드 리스트 for CSV 조회 -->
+	<select id="selectMintPlanFieldList" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo" resultType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, PAYMENT_SEQ
+			, CASE
+				WHEN STATUS = 0 THEN 'WAIT'
+				WHEN STATUS = 5 THEN 'FAILED'
+				WHEN STATUS = 10 THEN 'PROCESSING'
+				WHEN STATUS = 50 THEN 'COMPLETED'
+				ELSE 'UNDEFINED'
+			END AS STATUS
+			, WALLET_ADDRESS_TO
+			, WALLET_TYPE_TO
+			, NFT_TYPE
+			, NFT_ID
+			, JSON_FILE_URL
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+		FROM
+			mint_plan A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		ORDER BY A.SEQ
+	</select>
+	
+	<!-- 민트플랜 등록 -->
+	<insert id="insertMintPlan" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		INSERT INTO mint_plan (
+			PROJECT_SEQ
+			, PAYMENT_SEQ
+			, STATUS
+			, WALLET_ADDRESS_TO
+			, WALLET_TYPE_TO
+			, CURRENCY_SYMBOL
+			, NFT_TYPE
+			, NFT_ID
+			, JSON_FILE_URL
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{project_seq}
+			, #{payment_seq}
+			, #{status}
+			, #{wallet_address_to}
+			, #{wallet_type_to}
+			, #{currency_symbol}
+			, #{nft_type}
+			, #{nft_id}
+			, #{json_file_url}
+			, #{tx_id}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+	
+	<!-- 민트플랜 조회 -->
+	<!--
+	<select id="selectMintPlanBySeq" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo" resultType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		SELECT
+			SEQ
+			, PROJECT_ID
+			, PROJECT_SYMBOL
+			, PROJECT_NAME
+			, PROJECT_NAME_KO
+			, MAINNET
+			, CONTRACT_ADDRESS
+			, COLLECTION_MINT_ADDRESS
+			, COLLECTION_MASTER_EDITION_ADDRESS
+			, COLLECTION_METADATA_ADDRESS
+			, JSON_PATH
+			, ADMIN_WALLET_ADDRESS
+			, IMAGE_URL
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, MINT_START_TIME
+			, MINT_END_TIME
+			, MINT_START_BLOCK
+			, MINT_END_BLOCK
+			, CREATOR_FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			mint_plan A
+		WHERE A.SEQ = #{seq}
+	</select>
+	-->
+	
+	<!-- 민트플랜 조회 - LIMIT 1이 항상 최소 SEQ인 데이터를 조회하기 때문에 MIN() 함수를 사용하지 않음 -->
+	<!--
+	<select id="selectMintPlan" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo" resultType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			mint_plan A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		AND A.NFT_TYPE = #{nft_type}
+		<![CDATA[
+		AND A.STATUS < 10
+		AND A.NFT_ID >= CAST(#{nft_id_start} AS UNSIGNED)
+		AND A.NFT_ID <= CAST(#{nft_id_end} AS UNSIGNED)
+		]]>
+		ORDER BY A.SEQ
+		LIMIT 1
+	</select>
+	-->
+	
+	<!-- 민트플랜 조회 (에어드랍용) - LIMIT 1이 항상 최소 SEQ인 데이터를 조회하기 때문에 MIN() 함수를 사용하지 않음 -->
+	<select id="selectMintPlanById" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo" resultType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			mint_plan A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		AND A.NFT_ID = #{nft_id}
+		<![CDATA[
+		AND A.STATUS < 10
+		]]>
+	</select>
+	
+		<!-- 민트플랜 조회 (일괄민팅용) - LIMIT 1이 항상 최소 SEQ인 데이터를 조회하기 때문에 MIN() 함수를 사용하지 않음 -->
+	<select id="selectMintPlanAny" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo" resultType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			mint_plan A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		<![CDATA[
+		AND A.STATUS < 20
+		]]>
+		ORDER BY A.SEQ
+		LIMIT 1
+	</select>
+	
+	<!-- old_mint_plan_id로 민트플랜 조회 (도메인 접속시 mint_planId로 분기 처리용) -->
+	<!--
+	<select id="selectMintPlanByOldMintPlanId" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo" resultType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		SELECT
+			SEQ
+			, OLD_PROJECT_ID
+			, OLD_PROJECT_SYMBOL
+			, OLD_MAINNET
+			, OLD_PROJECT_NAME
+			, OLD_PROJECT_NAME_KO
+			, OLD_CONTRACT_ADDRESS
+			, OLD_JSON_PATH
+			, OLD_ADMIN_WALLET_ADDRESS
+			, OLD_PROJECT_IMAGE
+			, NEW_PROJECT_ID
+			, NEW_PROJECT_SYMBOL
+			, NEW_MAINNET
+			, NEW_PROJECT_NAME
+			, NEW_PROJECT_NAME_KO
+			, NEW_CONTRACT_ADDRESS
+			, NEW_JSON_PATH
+			, NEW_ADMIN_WALLET_ADDRESS
+			, NEW_PROJECT_IMAGE
+			, NEW_COLLECTION_MINT_ADDRESS
+			, NEW_COLLECTION_MASTER_EDITION_ADDRESS
+			, NEW_COLLECTION_METADATA_ADDRESS
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			mint_plan A
+		WHERE 1=1
+		AND A.OLD_PROJECT_ID = #{old_mint_plan_id}
+		LIMIT 1
+	</select>
+	-->
+	
+	<!-- 민트플랜 수정 -->
+	<!--
+	<update id="updateMintPlan" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		UPDATE mint_plan SET
+			OLD_PROJECT_ID = #{old_mint_plan_id}
+			, OLD_PROJECT_SYMBOL = #{old_mint_plan_symbol}
+			, OLD_MAINNET = #{old_mainnet}
+			, OLD_PROJECT_NAME = #{old_mint_plan_name}
+			, OLD_PROJECT_NAME_KO = #{old_mint_plan_name_ko}
+			, OLD_CONTRACT_ADDRESS = #{old_contract_address}
+			, OLD_JSON_PATH = #{old_json_path}
+			, OLD_ADMIN_WALLET_ADDRESS = #{old_admin_wallet_address}
+			, OLD_PROJECT_IMAGE = #{old_mint_plan_image}
+			, NEW_PROJECT_ID = #{new_mint_plan_id}
+			, NEW_PROJECT_SYMBOL = #{new_mint_plan_symbol}
+			, NEW_MAINNET = #{new_mainnet}
+			, NEW_PROJECT_NAME = #{new_mint_plan_name}
+			, NEW_PROJECT_NAME_KO = #{new_mint_plan_name_ko}
+			, NEW_CONTRACT_ADDRESS = #{new_contract_address}
+			, NEW_JSON_PATH = #{new_json_path}
+			, NEW_ADMIN_WALLET_ADDRESS = #{new_admin_wallet_address}
+			, NEW_PROJECT_IMAGE = #{new_mint_plan_image}
+			, DESCRIPTION = #{description}
+			, DESCRIPTION_KO = #{description_ko}
+			, FEE = #{fee}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	-->
+	
+	<!-- 민트플랜 상태 처리중으로 수정 -->
+	<!--
+	<update id="updateMintPlanStatusProcessing" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		UPDATE mint_plan SET
+			STATUS = #{status}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+		<![CDATA[
+		AND STATUS < 10
+		]]>
+	</update>
+	-->
+	
+	<!-- 민트플랜 상태 수정 -->
+	<update id="updateMintPlanStatus" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		UPDATE mint_plan SET
+			STATUS = #{status}
+		<if test="tx_id != null and tx_id != ''">
+			, TX_ID = #{tx_id}
+		</if>
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 민트플랜 삭제 -->
+	<!--
+	<delete id="deleteMintPlan" parameterType="io.starinc.api.v1.mintplan.vo.MintPlanVo">
+		UPDATE mint_plan SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+	-->
+	
+</mapper>

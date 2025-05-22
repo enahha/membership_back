@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.batchlog.mapper.BatchLogMapper">
+	<!-- 채굴로그 등록 -->
+	<insert id="insertBatchLog" parameterType="io.starinc.api.v1.batchlog.vo.BatchLogVo">
+		INSERT INTO batch_log (
+			STATUS_CD
+			, MESSAGE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		) VALUES (
+			#{status_cd}
+			, #{message}
+			, #{reg_id}
+			, SYSDATE()
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+		)
+	</insert>
+</mapper>

@@ -1,0 +1,95 @@
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '3.2.5'
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'io.starinc'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '21'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+	// implementation 'org.springframework.boot:spring-boot-starter-web'
+	// compileOnly 'org.projectlombok:lombok'
+	// annotationProcessor 'org.projectlombok:lombok'
+	// providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	// testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// test
+	
+	// testImplementation 'com.mmorrell:metaplex:1.30.5'
+	
+	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+	
+	// implementation 'org.bitcoinj:bitcoinj-core:0.15.0'
+	implementation 'org.bitcoinj:bitcoinj-core:0.16.2'
+	implementation 'com.mmorrell:solanaj:1.17.4'
+	// implementation 'com.mmorrell:solanaj:1.9'
+	// implementation 'org.p2p.solanaj:solanaj:1.1.2'
+	
+	implementation 'com.sun.mail:javax.mail:1.6.2' // 자바메일
+	// implementation 'org.fisco-bcos:solcJ:0.5.2.0'
+	implementation 'com.klaytn.caver:core:1.6.3'
+	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+	// implementation 'com.klaytn.caver:core:1.5.0'
+	// implementation "ch.qos.logback:logback-classic:1.2.3"
+	testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+	// implementation 'org.mariadb.jdbc:mariadb-java-client'
+	implementation 'org.mariadb.jdbc:mariadb-java-client'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	// implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.1'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+	// testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
+	compileOnly 'org.projectlombok:lombok'
+	// runtimeOnly 'mysql:mysql-connector-java'
+	implementation 'com.mysql:mysql-connector-j'
+	// implementation 'com.mysql:mysql-connector-j:8.0.32'
+	// implementation 'com.mysql:mysql-connector-j:8.4.0'
+	// implementation 'mysql:mysql-connector-java:8.0.33'
+	
+	
+	
+	
+	annotationProcessor 'org.projectlombok:lombok'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	// implementation 'javax.servlet:jstl'
+	// implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+	
+	implementation 'org.apache.httpcomponents:httpcore:4.4.6'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.2'
+	
+	// implementation fileTree(dir: 'libs', include: ['*.jar'])
+	// implementation fileTree(dir: 'src/main/webapp/WEB-INF/lib', include: ['*.jar'])
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	
+	// implementation 'org.slf4j:slf4j-api:2.0.13'
+	// implementation 'org.slf4j:slf4j-api:1.7.36'
+	// testImplementation 'org.slf4j:slf4j-log4j12:1.7.36'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs << '-parameters'
+}

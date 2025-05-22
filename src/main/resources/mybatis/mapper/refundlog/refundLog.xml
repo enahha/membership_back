@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.refundlog.mapper.RefundLogMapper"> 
+	<!--
+	 환불 로그 리스트 마지막 페이지 번호 조회 
+	<select id="selectRefundLogListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			refund_log A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.OLD_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	-->
+	
+	<!-- 환불 로그 리스트 조회 -->
+	<!--	
+	<select id="selectRefundLogList" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="io.starinc.api.v1.refundlog.vo.RefundLogVo">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+				, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+			FROM (
+				SELECT
+					SEQ
+					, OLD_PROJECT_ID
+					, OLD_PROJECT_SYMBOL
+					, OLD_MAINNET
+					, OLD_PROJECT_NAME
+					, OLD_PROJECT_NAME_KO
+					, OLD_CONTRACT_ADDRESS
+					, OLD_JSON_PATH
+					, OLD_ADMIN_WALLET_ADDRESS
+					, OLD_PROJECT_IMAGE
+					, NEW_PROJECT_ID
+					, NEW_PROJECT_SYMBOL
+					, NEW_MAINNET
+					, NEW_PROJECT_NAME
+					, NEW_PROJECT_NAME_KO
+					, NEW_CONTRACT_ADDRESS
+					, NEW_JSON_PATH
+					, NEW_ADMIN_WALLET_ADDRESS
+					, NEW_PROJECT_IMAGE
+					, DESCRIPTION
+					, DESCRIPTION_KO
+					, FEE
+					, REG_ID
+					, REG_TIME
+					, MOD_ID
+					, MOD_TIME
+					, DEL_ID
+					, DEL_TIME
+				FROM
+					refund_log A
+				WHERE 1=1
+				AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+				AND (
+					UPPER(A.OLD_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.OLD_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.OLD_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.OLD_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NEW_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NEW_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NEW_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NEW_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+				)
+		</if>
+				ORDER BY A.SEQ DESC
+			) A
+			, (SELECT @ROWNUM := 0) N
+		) B
+		<![CDATA[
+		WHERE ROWNUM > #{startRow}
+		AND ROWNUM <= #{endRow}
+		]]>
+		ORDER BY B.SEQ DESC
+	</select>
+	-->
+	
+	<!-- 환불 로그 등록 -->
+	<insert id="insertRefundLog" parameterType="io.starinc.api.v1.refundlog.vo.RefundLogVo">
+		INSERT INTO refund_log (
+			PROJECT_SEQ
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, NFT_TYPE
+			, MINT_AMOUNT
+			, CURRENCY_SYMBOL
+			, CURRENCY_CONTRACT
+			, CURRENCY_AMOUNT
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		) VALUES (
+			#{project_seq}
+			, #{wallet_address}
+			, #{wallet_type}
+			, #{nft_type}
+			, #{mint_amount}
+			, #{currency_symbol}
+			, #{currency_contract}
+			, #{currency_amount}
+			, #{tx_id}
+			, #{reg_id}
+			, SYSDATE()
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+		)
+		<selectKey resultType="int" keyProperty="seq" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 환불 로그 조회 -->
+	<!--
+	<select id="selectRefundLogBySeq" parameterType="io.starinc.api.v1.refundlog.vo.RefundLogVo" resultType="io.starinc.api.v1.refundlog.vo.RefundLogVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, NFT_TYPE
+			, CURRENCY_SYMBOL
+			, NFT_ID
+			, MINT_ACCOUNT_KEY
+			, TOKEN_ACCOUNT_KEY
+			, METADATA_ACCOUNT_KEY
+			, MASTER_EDITION_ACCOUNT_KEY
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			refund_log A
+		WHERE A.SEQ = #{seq}
+	</select>
+	-->
+	
+	<!-- 환불 로그 수정 -->
+	<!--
+	<update id="updateRefundLog" parameterType="io.starinc.api.v1.refundlog.vo.RefundLogVo">
+		UPDATE refund_log SET
+			NFT_ID = #{nft_id}
+			, MINT_ACCOUNT_KEY = #{mint_account_key}
+			, TOKEN_ACCOUNT_KEY = #{token_account_key}
+			, METADATA_ACCOUNT_KEY = #{metadata_account_key}
+			, MASTER_EDITION_ACCOUNT_KEY = #{master_edition_account_key}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	-->
+	
+	<!-- 환불 로그 삭제 -->
+	<!--
+	<delete id="deleteRefundLog" parameterType="io.starinc.api.v1.refundlog.vo.RefundLogVo">
+		UPDATE refund_log SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+	-->
+	
+</mapper>

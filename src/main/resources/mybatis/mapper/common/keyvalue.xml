@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.common.mapper.KeyValueMapper"> 
+	<!-- 키밸류 조회 -->
+	<select id="selectKeyValue" parameterType="String" resultType="String">
+		SELECT
+			CD_VALUE
+		FROM
+			key_value
+		WHERE DEL_YN = 'N'
+		AND CD_KEY = #{value}
+	</select>
+	
+	<!-- 키밸류 조회 - WTEC 가격 -->
+	<select id="selectKeyValueLastPriceWtec" parameterType="String" resultType="String">
+		SELECT
+			CD_VALUE
+		FROM
+			key_value
+		WHERE DEL_YN = 'N'
+		AND CD_KEY = 'last_price_wtec'
+		<![CDATA[
+		AND MOD_TIME >= DATE_SUB(NOW(), INTERVAL #{value} SECOND)
+		]]>
+	</select>
+	
+	<!-- 키밸류 머지 -->
+	<insert id="mergeKeyValue" parameterType="io.starinc.api.v1.common.vo.KeyValueVo">
+		INSERT INTO key_value (
+			CD_KEY
+			, CD_VALUE
+			, DEL_YN
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{cd_key}
+			, #{cd_value}
+			, #{del_yn}
+			,'SYSTEM'
+			, SYSDATE()
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			CD_VALUE = #{cd_value}
+			, MOD_ID = 'SYSTEM'
+			, MOD_TIME = SYSDATE()
+	</insert>
+	
+</mapper>

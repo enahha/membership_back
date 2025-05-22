@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.common.mapper.DateMapper"> 
+
+	<select id="selectNow" resultType="string">
+		SELECT
+			NOW() AS NOW
+	</select>
+	
+</mapper>

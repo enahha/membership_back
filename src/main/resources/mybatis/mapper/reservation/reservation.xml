@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.reservation.mapper.ReservationMapper"> 
+
+	<!-- 예약 리스트 마지막 페이지 번호 조회 -->
+	<select id="selectReservationListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			reservation A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	
+	<!-- 예약 리스트 조회 -->
+	<select id="selectReservationList" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="io.starinc.api.v1.reservation.vo.ReservationVo">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+				, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+			FROM (
+				SELECT
+					SEQ
+					, STATUS
+					, LOCALE
+					, NAME
+					, WALLET_ADDRESS
+					, WALLET_TYPE
+					, NFT_TYPE
+					, HAS_ALYA
+					, HAS_FITRI
+					, HAS_PUNKYKONGZ
+					, HAS_GENESIS
+					, TEL_NUMBER
+					, CARD_NUMBER
+					, EMAIL
+					, CARD_TYPE
+					, CARD_EXPIRY_MONTH
+					, CARD_EXPIRY_YEAR
+					, CUSTOMER_TYPE
+					, RESERVATION_SERVICE
+					, ROOM_TYPE
+					, CHECK_IN_DATE
+					, CHECK_OUT_DATE
+					, ADULTS
+					, CHILDREN
+					, INFANTS
+					, EXTRABED
+					, BREAKFAST_ADULTS
+					, BREAKFAST_CHILDREN
+					, GOLD_LOUNGE_ADULTS
+					, GOLD_LOUNGE_CHILDREN
+					, S_RESTAURANT
+					, S_RESTAURANT_ADULTS
+					, S_RESTAURANT_ADULTS_USAGE_COUNT
+					, S_RESTAURANT_CHILDREN
+					, S_RESTAURANT_CHILDREN_USAGE_COUNT
+					, M_RESTAURANT
+					, M_RESTAURANT_ADULTS
+					, M_RESTAURANT_ADULTS_USAGE_COUNT
+					, M_RESTAURANT_CHILDREN
+					, M_RESTAURANT_CHILDREN_USAGE_COUNT
+					, CANCEL_TIME
+					, REG_ID
+					, REG_TIME
+					, MOD_ID
+					, MOD_TIME
+					, DEL_ID
+					, DEL_TIME
+				FROM
+					reservation A
+				WHERE 1=1
+				AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+				AND (
+					UPPER(A.NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+				)
+		</if>
+				ORDER BY A.SEQ DESC
+			) A
+			, (SELECT @ROWNUM := 0) N
+		) B
+		<![CDATA[
+		WHERE ROWNUM > #{startRow}
+		AND ROWNUM <= #{endRow}
+		]]>
+		ORDER BY B.SEQ DESC
+	</select>
+	
+	<!-- 예약 전체 조회(지갑 주소 별) -->
+	<select id="selectReservationByWalletAddress" parameterType="io.starinc.api.v1.reservation.vo.ReservationVo" resultType="io.starinc.api.v1.reservation.vo.ReservationVo">
+		SELECT
+			SEQ
+			, STATUS
+			, LOCALE
+			, NAME
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, NFT_TYPE
+			, HAS_ALYA
+			, HAS_FITRI
+			, HAS_PUNKYKONGZ
+			, HAS_GENESIS
+			, TEL_NUMBER
+			, CARD_NUMBER
+			, EMAIL
+			, CARD_TYPE
+			, CARD_EXPIRY_MONTH
+			, CARD_EXPIRY_YEAR
+			, CUSTOMER_TYPE
+			, RESERVATION_SERVICE
+			, ROOM_TYPE
+			, CHECK_IN_DATE
+			, CHECK_OUT_DATE
+			, ADULTS
+			, CHILDREN
+			, INFANTS
+			, EXTRABED
+			, BREAKFAST_ADULTS
+			, BREAKFAST_CHILDREN
+			, GOLD_LOUNGE_ADULTS
+			, GOLD_LOUNGE_CHILDREN
+			, S_RESTAURANT
+			, S_RESTAURANT_ADULTS
+			, S_RESTAURANT_ADULTS_USAGE_COUNT
+			, S_RESTAURANT_CHILDREN
+			, S_RESTAURANT_CHILDREN_USAGE_COUNT
+			, M_RESTAURANT
+			, M_RESTAURANT_ADULTS
+			, M_RESTAURANT_ADULTS_USAGE_COUNT
+			, M_RESTAURANT_CHILDREN
+			, M_RESTAURANT_CHILDREN_USAGE_COUNT
+			, CANCEL_TIME
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			reservation A
+		WHERE A.WALLET_ADDRESS = #{wallet_address}
+		ORDER BY A.SEQ DESC
+	</select>
+	
+	<!-- 예약 조회 (단일) -->
+	<select id="selectReservationBySeq" parameterType="io.starinc.api.v1.reservation.vo.ReservationVo" resultType="io.starinc.api.v1.reservation.vo.ReservationVo">
+		SELECT
+			SEQ
+			, STATUS
+			, LOCALE
+			, NAME
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, NFT_TYPE
+			, HAS_ALYA
+			, HAS_FITRI
+			, HAS_PUNKYKONGZ
+			, HAS_GENESIS
+			, TEL_NUMBER
+			, CARD_NUMBER
+			, EMAIL
+			, CARD_TYPE
+			, CARD_EXPIRY_MONTH
+			, CARD_EXPIRY_YEAR
+			, CUSTOMER_TYPE
+			, RESERVATION_SERVICE
+			, ROOM_TYPE
+			, CHECK_IN_DATE
+			, CHECK_OUT_DATE
+			, ADULTS
+			, CHILDREN
+			, INFANTS
+			, EXTRABED
+			, BREAKFAST_ADULTS
+			, BREAKFAST_CHILDREN
+			, GOLD_LOUNGE_ADULTS
+			, GOLD_LOUNGE_CHILDREN
+			, S_RESTAURANT
+			, S_RESTAURANT_ADULTS
+			, S_RESTAURANT_ADULTS_USAGE_COUNT
+			, S_RESTAURANT_CHILDREN
+			, S_RESTAURANT_CHILDREN_USAGE_COUNT
+			, M_RESTAURANT
+			, M_RESTAURANT_ADULTS
+			, M_RESTAURANT_ADULTS_USAGE_COUNT
+			, M_RESTAURANT_CHILDREN
+			, M_RESTAURANT_CHILDREN_USAGE_COUNT
+			, CANCEL_TIME
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			reservation A
+		WHERE A.SEQ = #{seq}
+	</select>
+	
+	
+	<!-- 예약 등록 -->
+	<insert id="insertReservation" parameterType="io.starinc.api.v1.reservation.vo.ReservationVo">
+		INSERT INTO reservation (
+			STATUS
+			, LOCALE
+			, NAME
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, NFT_TYPE
+			, HAS_ALYA
+			, HAS_FITRI
+			, HAS_PUNKYKONGZ
+			, HAS_GENESIS
+			, TEL_NUMBER
+			, CARD_NUMBER
+			, EMAIL
+			, CARD_TYPE
+			, CARD_EXPIRY_MONTH
+			, CARD_EXPIRY_YEAR
+			, CUSTOMER_TYPE
+			, RESERVATION_SERVICE
+			, ROOM_TYPE
+			, CHECK_IN_DATE
+			, CHECK_OUT_DATE
+			, ADULTS
+			, CHILDREN
+			, INFANTS
+			, EXTRABED
+			, BREAKFAST_ADULTS
+			, BREAKFAST_CHILDREN
+			, GOLD_LOUNGE_ADULTS
+			, GOLD_LOUNGE_CHILDREN
+			, S_RESTAURANT
+			, S_RESTAURANT_ADULTS
+			, S_RESTAURANT_ADULTS_USAGE_COUNT
+			, S_RESTAURANT_CHILDREN
+			, S_RESTAURANT_CHILDREN_USAGE_COUNT
+			, M_RESTAURANT
+			, M_RESTAURANT_ADULTS
+			, M_RESTAURANT_ADULTS_USAGE_COUNT
+			, M_RESTAURANT_CHILDREN
+			, M_RESTAURANT_CHILDREN_USAGE_COUNT
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{status}
+			, #{locale}
+			, #{name}
+			, #{wallet_address}
+			, #{wallet_type}
+			, #{nft_type}
+			, #{has_alya}
+			, #{has_fitri}
+			, #{has_punkykongz}
+			, #{has_genesis}
+			, #{tel_number}
+			, #{card_number}
+			, #{email}
+			, #{card_type}
+			, #{card_expiry_month}
+			, #{card_expiry_year}
+			, #{customer_type}
+			, #{reservation_service}
+			, #{room_type}
+			, #{check_in_date}
+			, #{check_out_date}
+			, #{adults}
+			, #{children}
+			, #{infants}
+			, #{extrabed}
+			, #{breakfast_adults}
+			, #{breakfast_children}
+			, #{gold_lounge_adults}
+			, #{gold_lounge_children}
+			, #{s_restaurant}
+			, #{s_restaurant_adults}
+			, #{s_restaurant_adults_usage_count}
+			, #{s_restaurant_children}
+			, #{s_restaurant_children_usage_count}
+			, #{m_restaurant}
+			, #{m_restaurant_adults}
+			, #{m_restaurant_adults_usage_count}
+			, #{m_restaurant_children}
+			, #{m_restaurant_children_usage_count}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+	
+	<!-- 예약 수정 -->
+	<update id="updateReservation" parameterType="io.starinc.api.v1.reservation.vo.ReservationVo">
+		UPDATE reservation
+		SET 
+			NAME = #{name}
+			, LOCALE = #{locale}
+			, WALLET_ADDRESS = #{wallet_address}
+			, WALLET_TYPE = #{wallet_type}
+			, NFT_TYPE = #{nft_type}
+			, HAS_ALYA = #{has_alya}
+			, HAS_FITRI = #{has_fitri}
+			, HAS_PUNKYKONGZ = #{has_punkykongz}
+			, HAS_GENESIS = #{has_genesis}
+			, TEL_NUMBER = #{tel_number}
+			, CARD_NUMBER = #{card_number}
+			, EMAIL = #{email}
+			, CARD_TYPE = #{card_type}
+			, CARD_EXPIRY_MONTH = #{card_expiry_month}
+			, CARD_EXPIRY_YEAR = #{card_expiry_year}
+			, CUSTOMER_TYPE = #{customer_type}
+			, RESERVATION_SERVICE = #{reservation_service}
+			, ROOM_TYPE = #{room_type}
+			, CHECK_IN_DATE = #{check_in_date}
+			, CHECK_OUT_DATE = #{check_out_date}
+			, ADULTS = #{adults}
+			, CHILDREN = #{children}
+			, INFANTS = #{infants}
+			, EXTRABED = #{extrabed}
+			, BREAKFAST_ADULTS = #{breakfast_adults}
+			, BREAKFAST_CHILDREN = #{breakfast_children}
+			, GOLD_LOUNGE_ADULTS = #{gold_lounge_adults}
+			, GOLD_LOUNGE_CHILDREN = #{gold_lounge_children}
+			, S_RESTAURANT = #{s_restaurant}
+			, S_RESTAURANT_ADULTS = #{s_restaurant_adults}
+			, S_RESTAURANT_ADULTS_USAGE_COUNT = #{s_restaurant_adults_usage_count}
+			, S_RESTAURANT_CHILDREN = #{s_restaurant_children}
+			, S_RESTAURANT_CHILDREN_USAGE_COUNT = #{s_restaurant_children_usage_count}
+			, M_RESTAURANT = #{m_restaurant}
+			, M_RESTAURANT_ADULTS = #{m_restaurant_adults}
+			, M_RESTAURANT_ADULTS_USAGE_COUNT = #{m_restaurant_adults_usage_count}
+			, M_RESTAURANT_CHILDREN = #{m_restaurant_children}
+			, M_RESTAURANT_CHILDREN_USAGE_COUNT = #{m_restaurant_children_usage_count}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE 
+			SEQ = #{seq}
+	</update>
+	
+	<!-- 예약 상태 업데이트 -->
+	<update id="updateReservationStatus" parameterType="io.starinc.api.v1.reservation.vo.ReservationVo">
+		UPDATE reservation SET 
+			STATUS = #{status}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+			<if test="status == '10'"><!-- 취소요청인 경우, 취소일시 설정 -->
+				, CANCEL_TIME = SYSDATE()
+			</if>
+		WHERE SEQ = #{seq}
+	</update>
+	
+
+	<!-- 예약 삭제 -->
+	<delete id="deleteReservation" parameterType="io.starinc.api.v1.reservation.vo.ReservationVo">
+		UPDATE reservation SET
+			STATUS = #{status}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+</mapper>

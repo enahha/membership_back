@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.verifyedaddress.mapper.VerifyedAddressMapper"> 
+	
+	<!-- address로 마지막 uuid조회 -->
+	<select id="selectLastSeqAndUuidByAddress" parameterType="String" resultType="io.starinc.api.v1.verifyedaddress.vo.VerifyedAddressVo">
+		SELECT 
+			SEQ
+			, UUID
+		FROM verifyed_address 
+		WHERE WALLET_ADDRESS = #{wallet_address}
+		ORDER BY SEQ DESC LIMIT 1
+	</select>
+	
+	<!-- address와 uuid로 사용자 확인  -->
+	<select id="countVerifyedAddress" parameterType="io.starinc.api.v1.verifyedaddress.vo.VerifyedAddressVo" resultType="integer">
+		SELECT
+			count(*)
+		FROM verifyed_address 
+		WHERE UUID = #{uuid}
+		AND WALLET_ADDRESS = #{wallet_address}
+	</select>
+	
+	<!-- 등록 -->
+	<insert id="insertVerifyedAddress" parameterType="io.starinc.api.v1.verifyedaddress.vo.VerifyedAddressVo">
+		INSERT INTO verifyed_address (
+			UUID
+			, WALLET_ADDRESS
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{uuid}
+			, #{wallet_address}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+	
+</mapper>

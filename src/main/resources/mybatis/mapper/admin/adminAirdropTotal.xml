@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.admin.mapper.AdminAirdropTotalMapper"> 
+	
+	<!-- 에어드랍 신청 총 건수 및 데일리 건수 조회 -->
+	<select id="selectAdminAirdropTotalList" parameterType="io.starinc.api.v1.admin.vo.AdminAirdropTotalVo" resultType="io.starinc.api.v1.admin.vo.AdminAirdropTotalVo">
+		(
+			SELECT
+				'TOTAL' AS REG_DATE
+				, count(*) AS COUNT
+			FROM
+				airdrop_log
+		)
+		UNION ALL
+		(
+			SELECT
+				date(REG_TIME) AS REG_DATE
+				, count(*) AS COUNT
+			FROM
+				airdrop_log
+			GROUP BY DATE(REG_TIME)
+		)
+		ORDER BY REG_DATE DESC
+	</select>
+	
+</mapper>

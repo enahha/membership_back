@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.login.mapper.LoginMapper">
+
+	<!-- 가입중인 유저 아이디 중복 체크 -->
+	<select id="countUserId" parameterType="io.starinc.api.v1.login.vo.UserTempVo" resultType="integer">
+		SELECT
+			COUNT(*) AS COUNT
+		FROM
+			user A
+		WHERE A.UID = #{uid}
+	</select>
+
+	<!-- 가입중인 유저 이메일 코드 체크 -->
+	<select id="checkEmailCode" parameterType="io.starinc.api.v1.login.vo.UserTempVo" resultType="integer">
+		SELECT
+			COUNT(*) AS COUNT
+		FROM
+			user_temp A
+		WHERE A.UID = #{uid}
+		AND A.CODE = #{code}
+	</select>
+	
+	<!-- 회원 등록 -->
+	<insert id="mergeUserTemp" parameterType="io.starinc.api.v1.login.vo.UserTempVo">
+		INSERT INTO user_temp (
+			UID
+			, CODE
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{uid}
+			, #{code}
+			,'SYSTEM'
+			, SYSDATE()
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			CODE = #{code}
+			, REG_ID = 'SYSTEM'
+			, REG_TIME = SYSDATE()
+		
+	</insert>
+	
+	<!-- 메세지 등록 -->
+	<insert id="insertLoginLog" parameterType="io.starinc.api.v1.login.vo.LoginLogVo">
+		INSERT INTO login_log (
+			LOG_CD
+			, CLIENT_IP
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		) VALUES (
+			#{log_cd}
+			, #{client_ip}
+			, #{uid}
+			, SYSDATE()
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+		)
+	</insert>
+
+</mapper>

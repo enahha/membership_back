@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.airdroplog.mapper.AirdropLogMapper"> 
+	
+	<!-- 에어드랍 로그 전체 리스트 맥스 페이지 -->
+	<select id="selectAirdropLogCount" resultType="integer">
+		SELECT
+			COUNT(*)
+		FROM
+			airdrop_log A
+	</select>
+	
+	<!-- 에어드랍 로그 전체 리스트 맥스 페이지 -->
+	<select id="selectAirdropLogListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			airdrop_log A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="status != null and status != ''">
+			AND STATUS = #{status}
+		</if>
+		<if test="old_wallet_address != null and old_wallet_address != ''">
+			AND OLD_WALLET_ADDRESS = #{old_wallet_address}
+		</if>
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.OLD_WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_NFT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_NFT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	
+	<!-- 에어드랍 로그 전체 리스트 조회 -->
+	<select id="selectAirdropLogList" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+				, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+			FROM (
+				SELECT
+					SEQ
+					, STATUS
+					, OLD_NFT_NAME
+					, NEW_WALLET_ADDRESS
+					, NEW_NFT_ID
+					, NEW_MINT_ACCOUNT_KEY
+					, REG_ID
+					, REG_TIME
+				FROM
+					airdrop_log A
+				WHERE 1=1
+				AND DEL_ID IS NULL
+		<if test="status != null and status != ''">
+				AND STATUS = #{status}
+		</if>
+		<if test="old_wallet_address != null and old_wallet_address != ''">
+				AND OLD_WALLET_ADDRESS = #{old_wallet_address}
+		</if>
+		<if test="new_wallet_address != null and new_wallet_address != ''">
+				AND NEW_WALLET_ADDRESS = #{new_wallet_address}
+		</if>
+		<if test="keyword != null and keyword != ''">
+				AND (
+					UPPER(A.OLD_WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NEW_WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.NEW_NFT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.OLD_NFT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+				)
+		</if>
+					<!-- 민팅완료건 아래로 
+				ORDER BY CAST(A.STATUS AS UNSIGNED) ASC, A.SEQ ASC -->
+				<!-- seq순서대로 --> 
+				ORDER BY A.SEQ ASC
+				LIMIT 10000
+			) A
+			, (SELECT @ROWNUM := 0) N
+		) B
+		<![CDATA[
+		WHERE ROWNUM > #{startRow}
+		AND ROWNUM <= #{endRow}
+		]]>
+		<!-- 민팅완료건 아래로 
+		ORDER BY CAST(B.STATUS AS UNSIGNED) ASC, B.SEQ ASC -->
+		<!-- seq순서대로 --> 
+		ORDER BY B.SEQ ASC
+	</select>
+	
+	
+	<!-- 에어드랍 로그 전체 리스트 조회 -->
+	<select id="selectAirdropLogListAll" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo" resultType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		SELECT
+			SEQ
+			, OLD_WALLET_ADDRESS
+			, OLD_WALLET_TYPE
+			, OLD_NFT_ID
+			, OLD_NFT_NAME
+			, OLD_NFT_IMAGE
+			, NEW_WALLET_ADDRESS
+			, REG_ID
+			, REG_TIME
+		FROM
+			airdrop_log A
+	</select>
+	
+	<!-- 에어드랍 로그 조회 (단일 민팅) -->
+	<select id="selectAirdropLog" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo" resultType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		SELECT
+			SEQ
+			, STATUS
+			, OLD_PROJECT_ID
+			, OLD_WALLET_ADDRESS
+			, OLD_WALLET_TYPE
+			, OLD_NFT_CONTRACT
+			, OLD_NFT_ID
+			, OLD_NFT_NAME
+			, OLD_NFT_IMAGE
+			, NEW_WALLET_ADDRESS
+			, NEW_NFT_CONTRACT
+			, NEW_NFT_ID
+			, NEW_MINT_ACCOUNT_KEY
+			, NEW_TOKEN_ACCOUNT_KEY
+			, NEW_METADATA_ACCOUNT_KEY
+			, NEW_MASTER_EDITION_ACCOUNT_KEY
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			airdrop_log A
+		WHERE A.OLD_NFT_ID = #{old_nft_id}
+		<if test="new_wallet_address != null and new_wallet_address != ''">
+		AND NEW_WALLET_ADDRESS = #{new_wallet_address}
+		</if>
+	</select>
+	
+	<!-- 중복된 nft_id 리스트 조회 -->
+	<select id="findDuplicateNftIdList" resultType="string">
+		SELECT old_nft_id
+		FROM airdrop_log
+		WHERE old_nft_id IN
+		<foreach item="tokenId" collection="tokenIdList" open="(" separator="," close=")">
+			#{tokenId}
+		</foreach>
+	</select>
+
+	
+	<!-- 에어드랍 로그 등록 (에어드랍 요청) -->
+	<insert id="insertAirdropLog" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		INSERT INTO airdrop_log (
+			STATUS
+			, OLD_PROJECT_ID
+			, OLD_WALLET_ADDRESS
+			, OLD_WALLET_TYPE
+			, OLD_NFT_CONTRACT
+			, OLD_NFT_ID
+			, OLD_NFT_NAME
+			, OLD_NFT_IMAGE
+			, NEW_WALLET_ADDRESS
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{status}
+			, #{old_project_id}
+			, #{old_wallet_address}
+			, #{old_wallet_type}
+			, #{old_nft_contract}
+			, #{old_nft_id}
+			, #{old_nft_name}
+			, #{old_nft_image}
+			, #{new_wallet_address}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+	
+	<!-- 에어드랍 로그 등록 (에어드랍 요청 - 리스트) -->
+	<insert id="insertAirdropLogList" parameterType="list">
+		INSERT INTO airdrop_log (
+			STATUS,
+			OLD_PROJECT_ID,
+			OLD_WALLET_ADDRESS,
+			OLD_WALLET_TYPE,
+			OLD_NFT_CONTRACT,
+			OLD_NFT_ID,
+			OLD_NFT_NAME,
+			OLD_NFT_IMAGE,
+			NEW_WALLET_ADDRESS,
+			REG_ID,
+			REG_TIME
+		) VALUES
+		<foreach collection="list" item="item" separator=",">
+		(
+			#{item.status}
+			, #{item.old_project_id}
+			, #{item.old_wallet_address}
+			, #{item.old_wallet_type}
+			, #{item.old_nft_contract}
+			, #{item.old_nft_id}
+			, #{item.old_nft_name}
+			, #{item.old_nft_image}
+			, #{item.new_wallet_address}
+			, #{item.reg_id}
+			, SYSDATE()
+		)
+		</foreach>
+	</insert>
+	
+	<!-- 에어드랍 로그 등록 (에어드랍 준비) -->
+	<insert id="insertAirdropLogListForPrepare" parameterType="list">
+		INSERT INTO airdrop_log (
+			STATUS,
+			OLD_PROJECT_ID,
+			OLD_NFT_NAME,
+			NEW_WALLET_ADDRESS,
+			REG_ID,
+			REG_TIME
+		) VALUES
+		<foreach collection="list" item="item" separator=",">
+		(
+			'0'
+			, '1'
+			, 'TEAM'
+			, #{item.new_wallet_address}
+			, 'SYSTEM'
+			, SYSDATE()
+		)
+		</foreach>
+	</insert>
+	
+	<!-- 에어드랍 로그 new_nft_id 랜덤 할당(통 열의 개수만큼) -->
+	<update id="updateAirdropLogNftIdRandom">
+		UPDATE airdrop_log
+		JOIN (
+			SELECT seq
+				, ROW_NUMBER() OVER (ORDER BY RAND()) AS random_id
+			FROM airdrop_log
+		) AS random_rows
+		ON airdrop_log.seq = random_rows.seq
+		SET airdrop_log.new_nft_id = random_rows.random_id
+		WHERE airdrop_log.new_nft_id is null
+	</update>
+	
+	<!-- 에어드랍 로그 수정 (에어드랍 완료 후) -->
+	<update id="updateAirdropLog" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		UPDATE airdrop_log SET
+			NEW_NFT_CONTRACT = #{new_nft_contract}
+			, NEW_NFT_ID = #{new_nft_id}
+			, NEW_MINT_ACCOUNT_KEY = #{new_mint_account_key}
+			, NEW_TOKEN_ACCOUNT_KEY = #{new_token_account_key}
+			, NEW_METADATA_ACCOUNT_KEY = #{new_metadata_account_key}
+			, NEW_MASTER_EDITION_ACCOUNT_KEY = #{new_master_edition_account_key}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 에어드랍 로그 삭제 -->
+	<update id="deleteAirdropLog" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		UPDATE airdrop_log SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 에어드랍 로그 상태 수정 -->
+	<update id="updateAirdropLogStatus" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		UPDATE airdrop_log SET
+			STATUS = #{status}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 에어드랍 로그, nft id 상태 수정 -->
+	<update id="updateAirdropLogStatusAndNewNftId" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		UPDATE airdrop_log SET
+			STATUS = #{status}
+			, NEW_NFT_ID = #{new_nft_id}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- 에어드랍 시그니처 업데이트 -->
+	<update id="updateAirdropLogSignature" parameterType="io.starinc.api.v1.airdroplog.vo.AirdropLogVo">
+		UPDATE airdrop_log SET
+			NEW_MINT_SIGNATURE = #{new_mint_signature}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+</mapper>

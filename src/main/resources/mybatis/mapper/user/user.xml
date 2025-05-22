@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.user.mapper.UserMapper"> 
+	
+	<!-- uid로 사용자 조회 -->
+	<select id="selectUserByUid" parameterType="string" resultType="io.starinc.api.v1.user.vo.UserVo">
+		SELECT
+			*
+		FROM
+			user A
+		WHERE A.UID = #{uid}
+		AND A.DEL_ID IS NULL
+	</select>
+	
+	<!-- 자동로그인 유저 조회 -->
+	<select id="selectUserAutoLogin" parameterType="io.starinc.api.v1.user.vo.UserVo" resultType="io.starinc.api.v1.user.vo.UserVo">
+		SELECT
+			UID
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, PWD
+			, AUTH_KEY
+			, SOLANA_WALLET_ADDRESS
+			, MEMETOON_ID
+			, MEMETOON_PWD
+			, NAME
+			, NICKNAME
+			, UCODE
+			, BIRTH
+			, GENDER
+			, NATION
+			, MOBILE_NO
+			, TEL_NO
+			, PROFILE_IMAGE
+			, THUMBNAIL_IMAGE
+			, INTRODUCE
+			, ID_CARD_IMAGE
+			, HOME_ADDRESS
+			, HOME_ADDRESS_IMAGE
+			, BUSINESS_REGISTRATION_NO
+			, BUSINESS_LICENSE_IMAGE
+			, COMPANY_ADDRESS
+			, COMPANY_ADDRESS_IMAGE
+			, COMPANY_TEL_NO
+			, PUSH_AGREE_YN
+			, ADCD
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			user A
+		WHERE A.UID = #{uid}
+		AND AUTH_KEY = #{auth_key}
+	</select>
+	
+	<!-- 유저 조회 by 지갑주소 -->
+	<select id="selectUserByWalletAddress" parameterType="string" resultType="io.starinc.api.v1.user.vo.UserVo">
+		SELECT
+			UID
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, PWD
+			, AUTH_KEY
+			, SOLANA_WALLET_ADDRESS
+			, MEMETOON_ID
+			, MEMETOON_PWD
+			, NAME
+			, NICKNAME
+			, UCODE
+			, BIRTH
+			, GENDER
+			, NATION
+			, MOBILE_NO
+			, TEL_NO
+			, PROFILE_IMAGE
+			, THUMBNAIL_IMAGE
+			, INTRODUCE
+			, ID_CARD_IMAGE
+			, HOME_ADDRESS
+			, HOME_ADDRESS_IMAGE
+			, BUSINESS_REGISTRATION_NO
+			, BUSINESS_LICENSE_IMAGE
+			, COMPANY_ADDRESS
+			, COMPANY_ADDRESS_IMAGE
+			, COMPANY_TEL_NO
+			, PUSH_AGREE_YN
+			, ADCD
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			user A
+		WHERE A.WALLET_ADDRESS = #{wallet_address}
+	</select>
+	
+	<!-- 유저 조회 -->
+	<select id="selectUser" parameterType="string" resultType="io.starinc.api.v1.user.vo.UserVo">
+		SELECT
+			UID
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, PWD
+			, AUTH_KEY
+			, SOLANA_WALLET_ADDRESS
+			, MEMETOON_ID
+			, MEMETOON_PWD
+			, NAME
+			, NICKNAME
+			, UCODE
+			, BIRTH
+			, GENDER
+			, NATION
+			, MOBILE_NO
+			, TEL_NO
+			, PROFILE_IMAGE
+			, THUMBNAIL_IMAGE
+			, INTRODUCE
+			, ID_CARD_IMAGE
+			, HOME_ADDRESS
+			, HOME_ADDRESS_IMAGE
+			, BUSINESS_REGISTRATION_NO
+			, BUSINESS_LICENSE_IMAGE
+			, COMPANY_ADDRESS
+			, COMPANY_ADDRESS_IMAGE
+			, COMPANY_TEL_NO
+			, PUSH_AGREE_YN
+			, ADCD
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			user A
+		WHERE A.UID = #{uid}
+	</select>
+	
+	<!-- 유저 등록 -->
+	<insert id="insertUser" parameterType="io.starinc.api.v1.user.vo.UserVo">
+		INSERT INTO user (
+			UID
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, PWD
+			, AUTH_KEY
+			, SOLANA_WALLET_ADDRESS
+			, MEMETOON_ID
+			, MEMETOON_PWD
+			, NAME
+			, NICKNAME
+			, UCODE
+			, BIRTH
+			, GENDER
+			, NATION
+			, MOBILE_NO
+			, TEL_NO
+			, PROFILE_IMAGE
+			, THUMBNAIL_IMAGE
+			, INTRODUCE
+			, ID_CARD_IMAGE
+			, HOME_ADDRESS
+			, HOME_ADDRESS_IMAGE
+			, BUSINESS_REGISTRATION_NO
+			, BUSINESS_LICENSE_IMAGE
+			, COMPANY_ADDRESS
+			, COMPANY_ADDRESS_IMAGE
+			, COMPANY_TEL_NO
+			, PUSH_AGREE_YN
+			, ADCD
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		) VALUES (
+			#{uid}
+			, #{wallet_address}
+			, #{wallet_type}
+			, #{pwd2}
+			, #{auth_key}
+			, #{solana_wallet_address}
+			, #{memetoon_id}
+			, #{memetoon_pwd}
+			, #{name}
+			, #{name}
+			, #{ucode}
+			, #{birth}
+			, #{gender}
+			, #{nation}
+			, #{mobile_no}
+			, #{tel_no}
+			, #{profile_image}
+			, #{thumbnail_image}
+			, #{introduce}
+			, #{id_card_image}
+			, #{home_address}
+			, #{home_address_image}
+			, #{business_registration_no}
+			, #{business_license_image}
+			, #{company_address}
+			, #{company_address_image}
+			, #{company_tel_no}
+			, #{push_agree_yn}
+			, #{adcd}
+			, #{uid}
+			, SYSDATE()
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+		)
+		ON DUPLICATE KEY
+		UPDATE
+			WALLET_ADDRESS = #{wallet_address}
+			, WALLET_TYPE = #{wallet_type}
+			, MOD_ID = #{uid}
+			, MOD_TIME = SYSDATE()
+	</insert>
+	
+	<!-- 유저 비밀번호 수정 - 비밀번호 변경 -->
+	<update id="updateUserPwd" parameterType="io.starinc.api.v1.user.vo.UserVo">
+		UPDATE user SET
+			PWD = #{pwd2}
+			, AUTH_KEY = #{auth_key}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE UID = #{uid}
+	</update>
+	
+	<!-- 카카오 회원으로 수정 -->
+	<update id="updateUserToKakaoUser" parameterType="io.starinc.api.v1.user.vo.UserVo">
+		UPDATE user SET
+			PWD = #{pwd2}
+			, UCODE = #{ucode}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE UID = #{uid}
+	</update>
+	
+	<!-- solana_wallet_address 수정 -->
+	<update id="updateUserSolanaWalletAddress" parameterType="io.starinc.api.v1.user.vo.UserVo">
+		UPDATE user SET
+			SOLANA_WALLET_ADDRESS = #{solana_wallet_address}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE UID = #{uid}
+	</update>
+	
+	<!-- Memetoon 계정정보 수정 -->
+	<update id="updateUserMemetoonAccount" parameterType="io.starinc.api.v1.user.vo.UserVo">
+		UPDATE user SET
+			MEMETOON_ID = #{memetoon_id}
+			, MEMETOON_PWD = #{memetoon_pwd}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE UID = #{uid}
+	</update>
+	
+	<!-- 회원정보 수정 -->
+	<update id="updateUser" parameterType="io.starinc.api.v1.user.vo.UserVo">
+		UPDATE user SET
+			MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		<if test="wallet_address != null and wallet_address != ''">
+			, WALLET_ADDRESS = #{wallet_address}
+		</if>
+		<if test="pwd != null and pwd != ''">
+			, PWD = #{pwd}
+		</if>
+		<if test="name != null and name != ''">
+			, NAME = #{name}
+		</if>
+		<if test="nickname != null and nickname != ''">
+			, NICKNAME = #{nickname}
+		</if>
+		<if test="mobile_no != null and mobile_no != ''">
+			, MOBILE_NO = #{mobile_no}
+		</if>
+		<if test="tel_no != null and tel_no != ''">
+			, TEL_NO = #{tel_no}
+		</if>
+		<if test="profile_image != null and profile_image != ''">
+			, PROFILE_IMAGE = #{profile_image}
+		</if>
+		<if test="thumbnail_image != null and thumbnail_image != ''">
+			, THUMBNAIL_IMAGE = #{thumbnail_image}
+		</if>
+		<if test="introduce != null and introduce != ''">
+			, INTRODUCE = #{introduce}
+		</if>
+		<if test="id_card_image != null and id_card_image != ''">
+			, ID_CARD_IMAGE = #{id_card_image}
+		</if>
+		<if test="home_address != null and home_address != ''">
+			, HOME_ADDRESS = #{home_address}
+		</if>
+		<if test="home_address_image != null and home_address_image != ''">
+			, HOME_ADDRESS_IMAGE = #{home_address_image}
+		</if>
+		<if test="business_registration_no != null and business_registration_no != ''">
+			, BUSINESS_REGISTRATION_NO = #{business_registration_no}
+		</if>
+		<if test="business_license_image != null and business_license_image != ''">
+			, BUSINESS_LICENSE_IMAGE = #{business_license_image}
+		</if>
+		<if test="company_address != null and company_address != ''">
+			, COMPANY_ADDRESS = #{company_address}
+		</if>
+		<if test="company_address_image != null and company_address_image != ''">
+			, COMPANY_ADDRESS_IMAGE = #{company_address_image}
+		</if>
+		<if test="company_tel_no != null and company_tel_no != ''">
+			, COMPANY_TEL_NO = #{company_tel_no}
+		</if>
+		WHERE UID = #{uid}
+	</update>
+
+</mapper>

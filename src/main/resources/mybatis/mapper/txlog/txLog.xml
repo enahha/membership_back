@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.txlog.mapper.TxLogMapper"> 
+	
+	<!-- 트랜잭션 로그 등록 -->
+	<insert id="insertTxLog" parameterType="io.starinc.api.v1.txlog.vo.TxLogVo">
+		INSERT INTO tx_log (
+			TX_ID
+			, TX_TYPE
+			, SENDER
+			, RECEIVER
+			, AMOUNT
+			, TX_STATUS
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{tx_id}
+			, #{tx_type}
+			, #{sender}
+			, #{receiver}
+			, #{amount}
+			, #{tx_status}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+	
+	<!-- 트랜잭션 로그 조회 -->
+	<select id="selectTxLog" parameterType="io.starinc.api.v1.txlog.vo.TxLogVo" resultType="io.starinc.api.v1.txlog.vo.TxLogVo">
+		SELECT
+			TX_ID
+			, TX_TYPE
+			, SENDER
+			, RECEIVER
+			, AMOUNT
+			, TX_STATUS
+			, REG_ID
+			, REG_TIME
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			tx_log A
+		WHERE A.SEQ = #{seq}
+	</select>
+	
+	<!-- 트랜잭션 로그 수정 -->
+	<!--
+	<update id="updateTxLog" parameterType="io.starinc.api.v1.txlog.vo.TxLogVo">
+		UPDATE tx_log SET
+			TX_PAYMENT = #{tx_payment}
+			, TX_TRANSFER = #{tx_transfer}
+			, TX_MINT = #{tx_mint}
+			, TX_HASH = #{tx_hash}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	-->
+	
+</mapper>

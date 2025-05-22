@@ -1,0 +1,61 @@
+{
+	"info": {
+		"_postman_id": "f4d0c9fa-a352-402f-aac9-ea798568f737",
+		"name": "nft_migration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9270377"
+	},
+	"item": [
+		{
+			"name": "/migration/migrationFromKlaytn",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "fromWalletAddress",
+							"value": "111",
+							"type": "text"
+						},
+						{
+							"key": "fromWalletType",
+							"value": "metamask",
+							"type": "text"
+						},
+						{
+							"key": "fromNftContract",
+							"value": "222",
+							"type": "text"
+						},
+						{
+							"key": "fromNftId",
+							"value": "333",
+							"type": "text"
+						},
+						{
+							"key": "toWalletAddress",
+							"value": "444",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8888/api/migration/migrationFromKlaytn",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"migration",
+						"migrationFromKlaytn"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.nfttype.mapper.NftTypeMapper"> 
+	<!--
+	 NFT 타입 리스트 마지막 페이지 번호 조회 
+	<select id="selectNftTypeListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			nft_type A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.OLD_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	-->
+	
+	<!-- NFT 타입 리스트 조회 -->
+	<select id="selectNftTypeList" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		SELECT
+			A.SEQ
+			, A.PROJECT_SEQ
+			, A.ORDER_NO
+			, A.NFT_TYPE
+			, A.NFT_TYPE_NAME
+			, A.NFT_TYPE_NAME_KO
+			, A.NFT_ID_START
+			, A.NFT_ID_END
+			, A.AMOUNT_SUPPLY
+			, A.AMOUNT_REMAIN
+			, A.IMAGE_URL
+		FROM
+			nft_type A
+		WHERE A.PROJECT_SEQ IN (1, 4, 5, 6)
+		AND A.DEL_ID IS NULL
+		ORDER BY A.ORDER_NO
+	</select>
+	
+	<!-- NFT 타입 및 가격 리스트 조회 -->
+	<!--
+	<select id="selectNftTypeAndPriceList" parameterType="int" resultType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+				, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+			FROM (
+				SELECT
+					A.SEQ
+					, A.PROJECT_SEQ
+					, A.ORDER_NO
+					, A.NFT_TYPE
+					, A.NFT_TYPE_NAME
+					, A.NFT_TYPE_NAME_KO
+					, A.NFT_ID_START
+					, A.NFT_ID_END
+					, A.AMOUNT_SUPPLY
+					, A.AMOUNT_REMAIN
+					, A.IMAGE_URL
+					, B.SEQ AS NFT_PRICE_SEQ
+					, B.CURRENCY_SYMBOL
+					, B.CURRENCY_NAME
+					, B.CURRENCY_CONTRACT
+					, B.CURRENCY_DECIMAL
+					, B.CURRENCY_LOGO_IMAGE
+					, B.IS_USD_VALUE
+					, B.PRICE_USD
+					, B.PRICE_CURRENCY
+				FROM
+					nft_type A
+					INNER JOIN nft_price B ON B.PROJECT_SEQ = A.PROJECT_SEQ AND B.NFT_TYPE_SEQ = A.SEQ
+				WHERE A.PROJECT_SEQ = #{project_seq}
+				AND A.DEL_ID IS NULL
+				AND B.DEL_ID IS NULL
+				ORDER BY A.SEQ, B.ORDER_NO
+			) A
+			, (SELECT @ROWNUM := 0) N
+		) B
+	</select>
+	-->
+	
+	<!-- NFT 타입 등록 -->
+	<!--
+	<insert id="insertNftType" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		INSERT INTO nft_type (
+			SEQ
+			, OLD_PROJECT_ID
+			, OLD_PROJECT_SYMBOL
+			, OLD_MAINNET
+			, OLD_PROJECT_NAME
+			, OLD_PROJECT_NAME_KO
+			, OLD_CONTRACT_ADDRESS
+			, OLD_JSON_PATH
+			, OLD_ADMIN_WALLET_ADDRESS
+			, OLD_PROJECT_IMAGE
+			, NEW_PROJECT_ID
+			, NEW_PROJECT_SYMBOL
+			, NEW_MAINNET
+			, NEW_PROJECT_NAME
+			, NEW_PROJECT_NAME_KO
+			, NEW_CONTRACT_ADDRESS
+			, NEW_JSON_PATH
+			, NEW_ADMIN_WALLET_ADDRESS
+			, NEW_PROJECT_IMAGE
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, FEE
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{seq}
+			, #{old_nft_type_id}
+			, #{old_nft_type_symbol}
+			, #{old_mainnet}
+			, #{old_nft_type_name}
+			, #{old_nft_type_name_ko}
+			, #{old_contract_address}
+			, #{old_json_path}
+			, #{old_admin_wallet_address}
+			, #{old_nft_type_image}
+			, #{new_nft_type_id}
+			, #{new_nft_type_symbol}
+			, #{new_mainnet}
+			, #{new_nft_type_name}
+			, #{new_nft_type_name_ko}
+			, #{new_contract_address}
+			, #{new_json_path}
+			, #{new_admin_wallet_address}
+			, #{new_nft_type_image}
+			, #{description}
+			, #{description_ko}
+			, #{fee}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+	-->
+	
+	<!-- NFT 타입 조회 -->
+	<!--
+	<select id="selectNftTypeBySeq" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo" resultType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		SELECT
+			SEQ
+			, PROJECT_ID
+			, PROJECT_SYMBOL
+			, PROJECT_NAME
+			, PROJECT_NAME_KO
+			, MAINNET
+			, CONTRACT_ADDRESS
+			, COLLECTION_MINT_ADDRESS
+			, COLLECTION_MASTER_EDITION_ADDRESS
+			, COLLECTION_METADATA_ADDRESS
+			, JSON_PATH
+			, ADMIN_WALLET_ADDRESS
+			, IMAGE_URL
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, MINT_START_TIME
+			, MINT_END_TIME
+			, MINT_START_BLOCK
+			, MINT_END_BLOCK
+			, CREATOR_FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_type A
+		WHERE A.SEQ = #{seq}
+	</select>
+	-->
+	
+	<!-- NFT 타입 조회 -->
+	<select id="selectNftType" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo" resultType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, ORDER_NO
+			, NFT_TYPE
+			, NFT_TYPE_NAME
+			, NFT_TYPE_NAME_KO
+			, NFT_ID_START
+			, NFT_ID_END
+			, AMOUNT_SUPPLY
+			, AMOUNT_REMAIN
+			, IMAGE_URL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_type A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		AND A.NFT_TYPE = #{nft_type}
+	</select>
+	
+	<!-- NFT 타입 남은 수량 업데이트 -->
+	<update id="updateNftTypeRemainCount" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		UPDATE nft_type SET
+			AMOUNT_REMAIN = AMOUNT_REMAIN - 1
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- NFT 타입과 NFT가격 전체 리스트 조회 -->
+	<select id="selectNftTypeAndPriceByProjectSeq" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo" resultType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+	    SELECT 
+	        a.SEQ, 
+	        a.PROJECT_SEQ, 
+	        a.NFT_TYPE, 
+	        a.NFT_TYPE_NAME, 
+	        a.NFT_TYPE_NAME_KO, 
+	        a.NFT_ID_START, 
+	        a.NFT_ID_END,
+	        a.AMOUNT_SUPPLY, 
+	        a.AMOUNT_REMAIN, 
+	        a.IMAGE_URL,
+	        b.CURRENCY_SYMBOL, 
+	        b.CURRENCY_NAME, 
+	        b.CURRENCY_CONTRACT, 
+	        b.CURRENCY_DECIMAL, 
+	        b.CURRENCY_LOGO_IMAGE,
+	        b.IS_USD_VALUE, 
+	        b.PRICE_USD, 
+	        b.PRICE_CURRENCY
+	    FROM 
+	    	nft_type a
+	    INNER JOIN 
+	    	nft_price b ON a.SEQ = b.NFT_TYPE_SEQ
+	    WHERE b.DEL_ID IS NULL
+	    AND a.PROJECT_SEQ = #{project_seq}
+	</select>
+
+	
+	<!-- old_nft_type_id로 NFT 타입 조회 (도메인 접속시 nft_typeId로 분기 처리용) -->
+	<!--
+	<select id="selectNftTypeByOldNftTypeId" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo" resultType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		SELECT
+			SEQ
+			, OLD_PROJECT_ID
+			, OLD_PROJECT_SYMBOL
+			, OLD_MAINNET
+			, OLD_PROJECT_NAME
+			, OLD_PROJECT_NAME_KO
+			, OLD_CONTRACT_ADDRESS
+			, OLD_JSON_PATH
+			, OLD_ADMIN_WALLET_ADDRESS
+			, OLD_PROJECT_IMAGE
+			, NEW_PROJECT_ID
+			, NEW_PROJECT_SYMBOL
+			, NEW_MAINNET
+			, NEW_PROJECT_NAME
+			, NEW_PROJECT_NAME_KO
+			, NEW_CONTRACT_ADDRESS
+			, NEW_JSON_PATH
+			, NEW_ADMIN_WALLET_ADDRESS
+			, NEW_PROJECT_IMAGE
+			, NEW_COLLECTION_MINT_ADDRESS
+			, NEW_COLLECTION_MASTER_EDITION_ADDRESS
+			, NEW_COLLECTION_METADATA_ADDRESS
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_type A
+		WHERE 1=1
+		AND A.OLD_PROJECT_ID = #{old_nft_type_id}
+		LIMIT 1
+	</select>
+	-->
+	
+	<!-- NFT 타입 수정 -->
+	<!--
+	<update id="updateNftType" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		UPDATE nft_type SET
+			OLD_PROJECT_ID = #{old_nft_type_id}
+			, OLD_PROJECT_SYMBOL = #{old_nft_type_symbol}
+			, OLD_MAINNET = #{old_mainnet}
+			, OLD_PROJECT_NAME = #{old_nft_type_name}
+			, OLD_PROJECT_NAME_KO = #{old_nft_type_name_ko}
+			, OLD_CONTRACT_ADDRESS = #{old_contract_address}
+			, OLD_JSON_PATH = #{old_json_path}
+			, OLD_ADMIN_WALLET_ADDRESS = #{old_admin_wallet_address}
+			, OLD_PROJECT_IMAGE = #{old_nft_type_image}
+			, NEW_PROJECT_ID = #{new_nft_type_id}
+			, NEW_PROJECT_SYMBOL = #{new_nft_type_symbol}
+			, NEW_MAINNET = #{new_mainnet}
+			, NEW_PROJECT_NAME = #{new_nft_type_name}
+			, NEW_PROJECT_NAME_KO = #{new_nft_type_name_ko}
+			, NEW_CONTRACT_ADDRESS = #{new_contract_address}
+			, NEW_JSON_PATH = #{new_json_path}
+			, NEW_ADMIN_WALLET_ADDRESS = #{new_admin_wallet_address}
+			, NEW_PROJECT_IMAGE = #{new_nft_type_image}
+			, DESCRIPTION = #{description}
+			, DESCRIPTION_KO = #{description_ko}
+			, FEE = #{fee}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	-->
+	
+	<!-- NFT 타입 삭제 -->
+	<!--
+	<delete id="deleteNftType" parameterType="io.starinc.api.v1.nfttype.vo.NftTypeVo">
+		UPDATE nft_type SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+	-->
+	
+</mapper>

@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.nftinfo.mapper.NftInfoMapper"> 
+	<!--
+	 NFT 정보 리스트 마지막 페이지 번호 조회 
+	<select id="selectNftInfoListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			nft_info A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.OLD_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+	-->
+	
+	<!-- NFT 정보 민팅 완료 리스트 조회(민팅 후 1일 경과) -->
+	<select id="selectNftInfoMintCompletedList" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_NAME
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_info A
+		WHERE A.DEL_ID IS NULL
+		AND A.STATUS = 20
+		<![CDATA[
+		AND A.MOD_TIME < DATE_SUB(NOW(), INTERVAL 1 DAY)
+		]]>
+	</select>
+	
+	<!-- NFT 정보 등록 -->
+	<!--
+	<insert id="insertNftInfo" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		INSERT INTO nft_info (
+			SEQ
+			, OLD_PROJECT_ID
+			, OLD_PROJECT_SYMBOL
+			, OLD_MAINNET
+			, OLD_PROJECT_NAME
+			, OLD_PROJECT_NAME_KO
+			, OLD_CONTRACT_ADDRESS
+			, OLD_JSON_PATH
+			, OLD_ADMIN_WALLET_ADDRESS
+			, OLD_PROJECT_IMAGE
+			, NEW_PROJECT_ID
+			, NEW_PROJECT_SYMBOL
+			, NEW_MAINNET
+			, NEW_PROJECT_NAME
+			, NEW_PROJECT_NAME_KO
+			, NEW_CONTRACT_ADDRESS
+			, NEW_JSON_PATH
+			, NEW_ADMIN_WALLET_ADDRESS
+			, NEW_PROJECT_IMAGE
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, FEE
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{seq}
+			, #{old_nft_info_id}
+			, #{old_nft_info_symbol}
+			, #{old_mainnet}
+			, #{old_nft_info_name}
+			, #{old_nft_info_name_ko}
+			, #{old_contract_address}
+			, #{old_json_path}
+			, #{old_admin_wallet_address}
+			, #{old_nft_info_image}
+			, #{new_nft_info_id}
+			, #{new_nft_info_symbol}
+			, #{new_mainnet}
+			, #{new_nft_info_name}
+			, #{new_nft_info_name_ko}
+			, #{new_contract_address}
+			, #{new_json_path}
+			, #{new_admin_wallet_address}
+			, #{new_nft_info_image}
+			, #{description}
+			, #{description_ko}
+			, #{fee}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+	-->
+	
+	<!-- NFT 정보 조회 -->
+	<!--
+	<select id="selectNftInfoBySeq" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		SELECT
+			SEQ
+			, PROJECT_ID
+			, PROJECT_SYMBOL
+			, PROJECT_NAME
+			, PROJECT_NAME_KO
+			, MAINNET
+			, CONTRACT_ADDRESS
+			, COLLECTION_MINT_ADDRESS
+			, COLLECTION_MASTER_EDITION_ADDRESS
+			, COLLECTION_METADATA_ADDRESS
+			, JSON_PATH
+			, ADMIN_WALLET_ADDRESS
+			, IMAGE_URL
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, MINT_START_TIME
+			, MINT_END_TIME
+			, MINT_START_BLOCK
+			, MINT_END_BLOCK
+			, CREATOR_FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_info A
+		WHERE A.SEQ = #{seq}
+	</select>
+	-->
+	
+	<!-- NFT 정보 조회 - LIMIT 1이 항상 최소 SEQ인 데이터를 조회하기 때문에 MIN() 함수를 사용하지 않음 -->
+	<select id="selectNftInfo" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_NAME
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_info A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		AND A.NFT_TYPE = #{nft_type}
+		<![CDATA[
+		AND A.STATUS < 10
+		]]>
+		ORDER BY A.SEQ
+		LIMIT 1;
+	</select>
+	
+	<!-- NFT 정보 조회 - LIMIT 1이 항상 최소 SEQ인 데이터를 조회하기 때문에 MIN() 함수를 사용하지 않음 -->
+	<select id="selectNftInfoRamdonSeq" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_NAME
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_info A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		AND A.NFT_TYPE = #{nft_type}
+		<![CDATA[
+		AND A.STATUS < 10
+		]]>
+		ORDER BY RAND()
+		LIMIT 1;
+	</select>
+	
+	<!-- NFT 정보 조회 (에어드랍용) - LIMIT 1이 항상 최소 SEQ인 데이터를 조회하기 때문에 MIN() 함수를 사용하지 않음 -->
+	<select id="selectNftInfoById" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_NAME
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_info A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		AND A.NFT_ID = #{nft_id}
+	</select>
+	
+	<!-- NFT 정보 조회 (일괄민팅용) - LIMIT 1이 항상 최소 SEQ인 데이터를 조회하기 때문에 MIN() 함수를 사용하지 않음 -->
+	<select id="selectNftInfoAny" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, NFT_ID
+			, NFT_NAME
+			, NFT_TYPE
+			, STATUS
+			, IMAGE_FILE_NAME
+			, IMAGE_FILE_EXTENSION
+			, IMAGE_FILE_URL
+			, IMAGE_FILE_NAME_ORIGINAL
+			, JSON_FILE_NAME
+			, JSON_FILE_EXTENSION
+			, JSON_FILE_URL
+			, JSON_FILE_NAME_ORIGINAL
+			, REVEAL_JSON_FILE_NAME
+			, REVEAL_JSON_FILE_EXTENSION
+			, REVEAL_JSON_FILE_URL
+			, REVEAL_JSON_FILE_NAME_ORIGINAL
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_info A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		<![CDATA[
+		AND A.STATUS < 20
+		]]>
+		ORDER BY A.SEQ
+		LIMIT 1
+	</select>
+	
+	<!-- NFT 남은 수량 -->
+	<select id="selectNftInfoRemainCount" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM
+			nft_info A
+		WHERE A.PROJECT_SEQ = #{project_seq}
+		<![CDATA[
+		AND A.STATUS IN (10, 20)
+		]]>
+	</select>
+	
+	<!-- old_nft_info_id로 NFT 정보 조회 (도메인 접속시 nft_infoId로 분기 처리용) -->
+	<!--
+	<select id="selectNftInfoByOldNftInfoId" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		SELECT
+			SEQ
+			, OLD_PROJECT_ID
+			, OLD_PROJECT_SYMBOL
+			, OLD_MAINNET
+			, OLD_PROJECT_NAME
+			, OLD_PROJECT_NAME_KO
+			, OLD_CONTRACT_ADDRESS
+			, OLD_JSON_PATH
+			, OLD_ADMIN_WALLET_ADDRESS
+			, OLD_PROJECT_IMAGE
+			, NEW_PROJECT_ID
+			, NEW_PROJECT_SYMBOL
+			, NEW_MAINNET
+			, NEW_PROJECT_NAME
+			, NEW_PROJECT_NAME_KO
+			, NEW_CONTRACT_ADDRESS
+			, NEW_JSON_PATH
+			, NEW_ADMIN_WALLET_ADDRESS
+			, NEW_PROJECT_IMAGE
+			, NEW_COLLECTION_MINT_ADDRESS
+			, NEW_COLLECTION_MASTER_EDITION_ADDRESS
+			, NEW_COLLECTION_METADATA_ADDRESS
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			nft_info A
+		WHERE 1=1
+		AND A.OLD_PROJECT_ID = #{old_nft_info_id}
+		LIMIT 1
+	</select>
+	-->
+	
+	<!-- NFT 정보 수정 -->
+	<!--
+	<update id="updateNftInfo" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		UPDATE nft_info SET
+			OLD_PROJECT_ID = #{old_nft_info_id}
+			, OLD_PROJECT_SYMBOL = #{old_nft_info_symbol}
+			, OLD_MAINNET = #{old_mainnet}
+			, OLD_PROJECT_NAME = #{old_nft_info_name}
+			, OLD_PROJECT_NAME_KO = #{old_nft_info_name_ko}
+			, OLD_CONTRACT_ADDRESS = #{old_contract_address}
+			, OLD_JSON_PATH = #{old_json_path}
+			, OLD_ADMIN_WALLET_ADDRESS = #{old_admin_wallet_address}
+			, OLD_PROJECT_IMAGE = #{old_nft_info_image}
+			, NEW_PROJECT_ID = #{new_nft_info_id}
+			, NEW_PROJECT_SYMBOL = #{new_nft_info_symbol}
+			, NEW_MAINNET = #{new_mainnet}
+			, NEW_PROJECT_NAME = #{new_nft_info_name}
+			, NEW_PROJECT_NAME_KO = #{new_nft_info_name_ko}
+			, NEW_CONTRACT_ADDRESS = #{new_contract_address}
+			, NEW_JSON_PATH = #{new_json_path}
+			, NEW_ADMIN_WALLET_ADDRESS = #{new_admin_wallet_address}
+			, NEW_PROJECT_IMAGE = #{new_nft_info_image}
+			, DESCRIPTION = #{description}
+			, DESCRIPTION_KO = #{description_ko}
+			, FEE = #{fee}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	-->
+	
+	<!-- NFT 정보 상태 처리중으로 수정 -->
+	<update id="updateNftInfoStatusProcessing" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		UPDATE nft_info SET
+			STATUS = #{status}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+		<![CDATA[
+		AND STATUS < 10
+		]]>
+	</update>
+	
+	<!-- NFT 정보 상태 수정 -->
+	<update id="updateNftInfoStatus" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		UPDATE nft_info SET
+			STATUS = #{status}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+	<!-- NFT 정보 삭제 -->
+	<!--
+	<delete id="deleteNftInfo" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo">
+		UPDATE nft_info SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+	-->
+	
+	<!-- me 시리즈 팔린 수량 확인 -->
+	<!--
+	<select id="countMeNftType" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="int">
+		SELECT 
+			COUNT(*)
+		FROM nft_info A
+		WHERE A.NFT_TYPE = #{nft_type} 
+		AND A.STATUS = 20
+	</select>
+	-->
+	
+</mapper>

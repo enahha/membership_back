@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.project.mapper.ProjectMapper"> 
+
+	<!-- 프로젝트 리스트 마지막 페이지 번호 조회 -->
+	<select id="selectProjectListLastPageNum" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="integer">
+		SELECT
+			CEIL(IF(COUNT(*)=0, 1, COUNT(*)) / #{pageSize}) AS LAST_PAGE_NUM
+		FROM
+			project A
+		WHERE 1=1
+		AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+		AND (
+			UPPER(A.OLD_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.OLD_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+			OR
+			UPPER(A.NEW_CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+		)
+		</if>
+	</select>
+
+	
+	<!-- 프로젝트 리스트 조회 -->	
+	<select id="selectProjectList" parameterType="io.starinc.api.v1.common.vo.CommonVo" resultType="io.starinc.api.v1.project.vo.ProjectVo">
+		SELECT
+			*
+		FROM (
+			SELECT
+				*
+				, @ROWNUM := @ROWNUM + 1 AS ROWNUM
+			FROM (
+				SELECT
+					SEQ
+					, PROJECT_ID
+					, PROJECT_SYMBOL
+					, PROJECT_NAME
+					, PROJECT_NAME_KO
+					, MAINNET
+					, CONTRACT_ADDRESS
+					, JSON_PATH
+					, ADMIN_WALLET_ADDRESS
+					, IMAGE_URL
+					, DESCRIPTION
+					, DESCRIPTION_KO
+					, MINT_START_TIME
+					, MINT_END_TIME
+					, MINT_START_BLOCK
+					, MINT_END_BLOCK
+					, CREATOR_FEE
+					, REG_ID
+					, REG_TIME
+					, MOD_ID
+					, MOD_TIME
+					, DEL_ID
+					, DEL_TIME
+				FROM
+					project A
+				WHERE 1=1
+				AND DEL_ID IS NULL
+		<if test="keyword != null and keyword != ''">
+				AND (
+					UPPER(A.PROJECT_ID) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.PROJECT_SYMBOL) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.PROJECT_NAME) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.PROJECT_NAME_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.MAINNET) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.CONTRACT_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.JSON_PATH) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.ADMIN_WALLET_ADDRESS) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.DESCRIPTION) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+					OR
+					UPPER(A.DESCRIPTION_KO) LIKE CONCAT('%', UPPER(#{keyword}), '%')
+				)
+		</if>
+				ORDER BY A.SEQ DESC
+			) A
+			, (SELECT @ROWNUM := 0) N
+		) B
+		<![CDATA[
+		WHERE ROWNUM > #{startRow}
+		AND ROWNUM <= #{endRow}
+		]]>
+		ORDER BY B.SEQ DESC
+	</select>
+	
+	<!-- 프로젝트 등록 -->
+	<insert id="insertProject" parameterType="io.starinc.api.v1.project.vo.ProjectVo">
+		INSERT INTO project (
+			PROJECT_ID
+			, PROJECT_SYMBOL
+			, PROJECT_NAME
+			, PROJECT_NAME_KO
+			, MAINNET
+			, CONTRACT_ADDRESS
+			, JSON_PATH
+			, ADMIN_WALLET_ADDRESS
+			, LISTING_WALLET_ADDRESS
+			, FEE_WALLET_ADDRESS
+			, LISTING_WALLET_SECRET_KEY
+			, FEE_WALLET_SECRET_KEY
+			, IMAGE_URL
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, MINT_START_TIME
+			, MINT_END_TIME
+			, MINT_START_BLOCK
+			, MINT_END_BLOCK
+			, CREATOR_FEE
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{project_id}
+			, #{project_symbol}
+			, #{project_name}
+			, #{project_name_ko}
+			, #{mainnet}
+			, #{contract_address}
+			, #{json_path}
+			, #{admin_wallet_address}
+			, #{listing_wallet_address}
+			, #{fee_wallet_address}
+			, #{listing_wallet_secret_key}
+			, #{fee_wallet_secret_key}
+			, #{image_url}
+			, #{description}
+			, #{description_ko}
+			, #{mint_start_time}
+			, #{mint_end_time}
+			, #{mint_start_block}
+			, #{mint_end_block}
+			, #{creator_fee}
+			, #{reg_id}
+			, SYSDATE()
+		)
+	</insert>
+
+	
+	<!-- 프로젝트 조회 -->
+	<select id="selectProject" parameterType="io.starinc.api.v1.project.vo.ProjectVo" resultType="io.starinc.api.v1.project.vo.ProjectVo">
+		SELECT
+			SEQ
+			, PROJECT_ID
+			, PROJECT_SYMBOL
+			, PROJECT_NAME
+			, PROJECT_NAME_KO
+			, MAINNET
+			, CONTRACT_ADDRESS
+			, JSON_PATH
+			, ADMIN_WALLET_ADDRESS
+			, LISTING_WALLET_ADDRESS
+			, FEE_WALLET_ADDRESS
+			, LISTING_WALLET_SECRET_KEY
+			, FEE_WALLET_SECRET_KEY
+			, IMAGE_URL
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, MINT_START_TIME
+			, MINT_END_TIME
+			, MINT_START_BLOCK
+			, MINT_END_BLOCK
+			, CREATOR_FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			project A
+		WHERE A.SEQ = #{seq}
+	</select>
+	
+	<!-- old_project_id로 프로젝트 조회 (도메인 접속시 projectId로 분기 처리용) -->
+	<!--
+	<select id="selectProjectByOldProjectId" parameterType="io.starinc.api.v1.project.vo.ProjectVo" resultType="io.starinc.api.v1.project.vo.ProjectVo">
+		SELECT
+			SEQ
+			, OLD_PROJECT_ID
+			, OLD_PROJECT_SYMBOL
+			, OLD_MAINNET
+			, OLD_PROJECT_NAME
+			, OLD_PROJECT_NAME_KO
+			, OLD_CONTRACT_ADDRESS
+			, OLD_JSON_PATH
+			, OLD_ADMIN_WALLET_ADDRESS
+			, OLD_PROJECT_IMAGE
+			, NEW_PROJECT_ID
+			, NEW_PROJECT_SYMBOL
+			, NEW_MAINNET
+			, NEW_PROJECT_NAME
+			, NEW_PROJECT_NAME_KO
+			, NEW_CONTRACT_ADDRESS
+			, NEW_JSON_PATH
+			, NEW_ADMIN_WALLET_ADDRESS
+			, NEW_PROJECT_IMAGE
+			, NEW_COLLECTION_MINT_ADDRESS
+			, NEW_COLLECTION_MASTER_EDITION_ADDRESS
+			, NEW_COLLECTION_METADATA_ADDRESS
+			, DESCRIPTION
+			, DESCRIPTION_KO
+			, FEE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			project A
+		WHERE 1=1
+		AND A.OLD_PROJECT_ID = #{old_project_id}
+		LIMIT 1
+	</select>
+	-->
+	
+	
+	<!-- 프로젝트 수정 -->
+	<update id="updateProject" parameterType="io.starinc.api.v1.project.vo.ProjectVo">
+		UPDATE project
+		SET 
+			PROJECT_SYMBOL = #{project_symbol},
+			PROJECT_NAME = #{project_name},
+			PROJECT_NAME_KO = #{project_name_ko},
+			MAINNET = #{mainnet},
+			CONTRACT_ADDRESS = #{contract_address},
+			JSON_PATH = #{json_path},
+			ADMIN_WALLET_ADDRESS = #{admin_wallet_address},
+			LISTING_WALLET_ADDRESS = #{listing_wallet_address},
+			FEE_WALLET_ADDRESS = #{fee_wallet_address},
+			LISTING_WALLET_SECRET_KEY = #{listing_wallet_secret_key},
+			FEE_WALLET_SECRET_KEY = #{fee_wallet_secret_key},
+			IMAGE_URL = #{image_url},
+			DESCRIPTION = #{description},
+			DESCRIPTION_KO = #{description_ko},
+			MINT_START_TIME = #{mint_start_time},
+			MINT_END_TIME = #{mint_end_time},
+			MINT_START_BLOCK = #{mint_start_block},
+			MINT_END_BLOCK = #{mint_end_block},
+			CREATOR_FEE = #{creator_fee},
+			MOD_ID = #{mod_id},
+			MOD_TIME = SYSDATE()
+		WHERE 
+			SEQ = #{seq}
+	</update>
+
+
+	<!-- 프로젝트 삭제 -->
+	<delete id="deleteProject" parameterType="io.starinc.api.v1.project.vo.ProjectVo">
+		UPDATE project SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+	
+	<!-- 솔라나 collection key, jsonurl 업데이트 -->
+	<update id="updateSolCollectionKey" parameterType="io.starinc.api.v1.project.vo.ProjectVo">
+		UPDATE project SET 
+			JSON_PATH = #{json_path}
+			, CONTRACT_ADDRESS = #{contract_address}
+		WHERE SEQ = #{seq}
+	</update>
+	
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.common.mapper.FileMapper"> 
+
+	<select id="selectFileList" parameterType="io.starinc.api.v1.common.vo.FileVo" resultType="io.starinc.api.v1.common.vo.FileVo">
+		SELECT
+			SEQ
+			, SEQ_FILE_MST
+			, NAME
+			, NAME_ORIGNAL
+			, DIR_PATH
+			, URL_PATH
+			, SIZE
+			, EXTENSION
+			, CONTENT_TYPE
+			, USER_ORDER
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			file
+		WHERE DEL_ID IS NULL
+		AND SEQ_FILE_MST = #{seq_file_mst}
+		ORDER BY USER_ORDER
+	</select>
+	
+	<select id="selectFile" parameterType="io.starinc.api.v1.common.vo.FileVo" resultType="io.starinc.api.v1.common.vo.FileVo">
+		SELECT
+			SEQ
+			, SEQ_FILE_MST
+			, NAME
+			, NAME_ORIGNAL
+			, DIR_PATH
+			, URL_PATH
+			, SIZE
+			, EXTENSION
+			, CONTENT_TYPE
+			, USER_ORDER
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			file
+		WHERE DEL_ID IS NULL
+		AND SEQ = #{seq}
+	</select>
+	
+	<insert id="insertFile" parameterType="io.starinc.api.v1.common.vo.FileVo">
+		INSERT INTO file (
+			SEQ_FILE_MST
+			, NAME
+			, NAME_ORIGNAL
+			, DIR_PATH
+			, URL_PATH
+			, SIZE
+			, EXTENSION
+			, CONTENT_TYPE
+			, USER_ORDER
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		) VALUES (
+			#{seq_file_mst}
+			, #{name}
+			, #{name_original}
+			, #{dir_path}
+			, #{url_path}
+			, #{size}
+			, #{extension}
+			, #{content_type}
+			, #{user_order}
+			, #{uid}
+			, SYSDATE()
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+		)
+		<selectKey resultType="int" keyProperty="seq" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<update id="updateFile" parameterType="io.starinc.api.v1.common.vo.FileVo">
+		UPDATE file SET
+			USER_ORDER = #{user_order}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE URL_PATH = #{url_path}
+	</update>
+	
+	<update id="deleteFile" parameterType="io.starinc.api.v1.common.vo.FileVo">
+		UPDATE file SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.marketprice.mapper.MarketPriceMapper"> 
+	<!-- 시장가격 조회 -->
+	<select id="selectMarketPriceByDate" parameterType="io.starinc.api.v1.marketprice.vo.MarketPriceVo" resultType="io.starinc.api.v1.marketprice.vo.MarketPriceVo">
+		SELECT
+			SEQ
+			, DATE
+			, CURRENCY_SYMBOL
+			, DAILY_PRICE
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			market_price
+		WHERE DEL_ID IS NULL
+		AND CURRENCY_SYMBOL = #{currency_symbol}
+		AND DATE = #{date}
+		ORDER BY SEQ DESC
+		LIMIT 1
+	</select>
+	
+	<!-- 시장가격 -->
+	<insert id="insertMarketPrice" parameterType="io.starinc.api.v1.marketprice.vo.MarketPriceVo">
+		INSERT INTO market_price (
+			DATE
+			, CURRENCY_SYMBOL
+			, DAILY_PRICE
+			, REG_ID
+			, REG_TIME
+		) VALUES (
+			#{date}
+			, #{currency_symbol}
+			, #{daily_price}
+			,'SYSTEM'
+			, SYSDATE()
+		)
+		<selectKey resultType="int" keyProperty="seq" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+</mapper>

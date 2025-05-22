@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.starinc.api.v1.minelog.mapper.MineLogMapper"> 
+	
+	<!-- 채굴로그 리스트 조회 -->
+	<select id="selectMineLogPendingRewardsList" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.minelog.vo.PendingRewardsVo">
+		SELECT
+			MINE_TYPE
+			, sum(truncate(AMOUNT, 2)) AS AMOUNT
+		FROM
+			mine_log
+		WHERE 1=1
+		<foreach collection="nftInfoList" item="item" index="index" open="AND (" close=")" separator="OR">
+			(PROJECT_SEQ = #{item.project_seq} AND NFT_ID = #{item.nft_id})
+		</foreach>
+		GROUP BY
+			MINE_TYPE
+	</select>
+	
+	<!-- 채굴로그 NFT 타입별 채굴량 조회 -->
+	<select id="selectMineLogNftTypePendingRewardsList" parameterType="io.starinc.api.v1.nftinfo.vo.NftInfoVo" resultType="io.starinc.api.v1.minelog.vo.PendingRewardsVo">
+		SELECT
+			B.MINE_TYPE
+			, B.NFT_TYPE
+			, sum(B.AMOUNT) AS AMOUNT
+		FROM (
+			SELECT
+				PROJECT_SEQ
+				, NFT_ID
+				, (SELECT NFT_TYPE FROM nft_info X WHERE X.PROJECT_SEQ = A.PROJECT_SEQ AND X.NFT_ID = A.NFT_ID) AS NFT_TYPE
+				, MINE_TYPE
+				, truncate(AMOUNT, 2) AS AMOUNT
+			FROM mine_log A
+			WHERE 1=1
+		<foreach collection="nftInfoList" item="item" index="index" open="AND (" close=")" separator="OR">
+			(PROJECT_SEQ = #{item.project_seq} AND NFT_ID = #{item.nft_id})
+		</foreach>
+		) B
+		GROUP BY B.MINE_TYPE, B.NFT_TYPE
+	</select>
+	
+	<!-- 채굴로그 등록 -->
+	<insert id="insertMineLog" parameterType="io.starinc.api.v1.minelog.vo.MineLogVo">
+		INSERT INTO mine_log (
+			PROJECT_SEQ
+			, NFT_ID
+			, MINE_TYPE
+			, DAILY_PRICE
+			, AMOUNT
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		) VALUES (
+			#{project_seq}
+			, #{nft_id}
+			, #{mine_type}
+			, #{daily_price}
+			, #{amount}
+			, #{reg_id}
+			, SYSDATE()
+			, NULL
+			, NULL
+			, NULL
+			, NULL
+		)
+		<selectKey resultType="int" keyProperty="seq" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 채굴로그 조회 -->
+	<!--
+	<select id="selectMineLogBySeq" parameterType="io.starinc.api.v1.minelog.vo.MineLogVo" resultType="io.starinc.api.v1.minelog.vo.MineLogVo">
+		SELECT
+			SEQ
+			, PROJECT_SEQ
+			, WALLET_ADDRESS
+			, WALLET_TYPE
+			, NFT_TYPE
+			, CURRENCY_SYMBOL
+			, NFT_ID
+			, MINT_ACCOUNT_KEY
+			, TOKEN_ACCOUNT_KEY
+			, METADATA_ACCOUNT_KEY
+			, MASTER_EDITION_ACCOUNT_KEY
+			, TX_ID
+			, REG_ID
+			, REG_TIME
+			, MOD_ID
+			, MOD_TIME
+			, DEL_ID
+			, DEL_TIME
+		FROM
+			mine_log A
+		WHERE A.SEQ = #{seq}
+	</select>
+	-->
+	
+	<!-- 채굴로그 수정 -->
+	<!--
+	<update id="updateMineLog" parameterType="io.starinc.api.v1.minelog.vo.MineLogVo">
+		UPDATE mine_log SET
+			NFT_ID = #{nft_id}
+			, MINT_ACCOUNT_KEY = #{mint_account_key}
+			, TOKEN_ACCOUNT_KEY = #{token_account_key}
+			, METADATA_ACCOUNT_KEY = #{metadata_account_key}
+			, MASTER_EDITION_ACCOUNT_KEY = #{master_edition_account_key}
+			, MOD_ID = #{mod_id}
+			, MOD_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</update>
+	-->
+	
+	<!-- 채굴로그 삭제 -->
+	<!--
+	<delete id="deleteMineLog" parameterType="io.starinc.api.v1.minelog.vo.MineLogVo">
+		UPDATE mine_log SET
+			DEL_ID = #{del_id}
+			, DEL_TIME = SYSDATE()
+		WHERE SEQ = #{seq}
+	</delete>
+	-->
+	
+</mapper>
